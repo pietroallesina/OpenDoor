@@ -1,11 +1,14 @@
-create database if not exists PorteAperte;
+create database if not exists PortaAperta;
+use PortaAperta;
+
+-- SEZIONE TABELLE --
 
 create table if not exists Operatori (
 	Cognome varchar(64) not null,
 	Nome varchar(64) not null,
 	ID smallint unsigned auto_increment,
 
-	primary key (ID),
+	primary key (ID)
 );
 
 create table if not exists Clienti (
@@ -16,10 +19,8 @@ create table if not exists Clienti (
 	NumeroFamigliari tinyint unsigned not null,
 	CreditiDisponibili tinyint, -- trigger per inizializzazione e aggiornamento (decremento)
 	AccessiDisponibili tinyint, -- trigger per inizializzazione e aggiornamento (decremento)
-	TotaleCreditiSpesi smallint default null, -- trigger per aggiornamento (incremento)
-	TotaleAccessiEffettuati smallint default null, -- trigger per aggiornamento (incremento)
 
-	primary key (NumeroFascicolo),
+	primary key (NumeroFascicolo)
 );
 
 create table if not exists Prenotazioni (
@@ -27,13 +28,13 @@ create table if not exists Prenotazioni (
 	DataPrenotata date not null,
 	ID smallint auto_increment,
 
-	Operatore smallint unsigned,
+	Operatore smallint unsigned not null,
 	DataInserimento datetime default current_timestamp(),
 	DataAggiornamento datetime default current_timestamp() on update current_timestamp(),
 
 	primary key (ID),
 	foreign key (Utente) references Clienti(NumeroFascicolo),
-	foreign key (Operatore) references Operatori(ID),
+	foreign key (Operatore) references Operatori(ID)
 );
 
 create table if not exists Accessi (
@@ -45,10 +46,14 @@ create table if not exists Accessi (
 
 	primary key (ID),
 	foreign key (Utente) references Prenotazioni(Utente),
-	foreign key (Operatore) references Operatori(ID),
+	foreign key (Operatore) references Operatori(ID)
 );
 
-create trigger if not exists trigger_inserimento_persona AFTER INSERT on Clienti
+-- SEZIONE TRIGGER --
+
+drop trigger if exists trigger_inserimento_cliente;
+delimiter $$
+create trigger trigger_inserimento_cliente AFTER INSERT on Clienti
 	for each row
 	begin
 		update Clienti
@@ -62,15 +67,46 @@ create trigger if not exists trigger_inserimento_persona AFTER INSERT on Clienti
 				else 120
 				end
 			),
-			set AccessiDisponibili = (
+			AccessiDisponibili = (
 				case
 				when NumeroFamigliari <= 3 then 2
 				else 3
+                end
 			);
-	end;
+	end$$
+delimiter ;
 
--- create trigger if not exists trigger_inserimento_accesso AFTER INSERT on Accessi
--- 	for each row
--- 	begin
--- 		update Clienti
--- 			set
+drop trigger if exists trigger_aggiornamento_cliente;
+delimiter $$
+create trigger trigger_aggiornamento_cliente AFTER UPDATE on Clienti
+	for each row
+	begin
+		update Clienti
+			set CreditiDisponibili = (
+				case NumeroFamigliari
+				when 1 then 40
+				when 2 then 60
+				when 3 then 75
+				when 4 then 90
+				when 5 then 105
+				else 120
+				end
+			),
+			AccessiDisponibili = (
+				case
+				when NumeroFamigliari <= 3 then 2
+				else 3
+                end
+			);
+	end$$
+delimiter ;
+
+
+drop trigger if exists trigger_inserimento_accesso;
+delimiter $$
+create trigger trigger_inserimento_accesso AFTER INSERT on Accessi
+	for each row
+	begin
+		
+	end$$
+delimiter ;
