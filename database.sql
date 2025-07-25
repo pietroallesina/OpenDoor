@@ -20,8 +20,8 @@ create table if not exists Clienti (
 	Regione enum('ITA', 'PAK', 'AN') not null,
 	NumeroFascicolo int unsigned auto_increment,
 	NumeroFamigliari tinyint unsigned not null,
-	CreditiDisponibili tinyint, -- trigger per inizializzazione e aggiornamento (decremento)
-	AccessiDisponibili tinyint, -- trigger per inizializzazione e aggiornamento (decremento)
+	CreditiDisponibili tinyint unsigned, -- trigger per inizializzazione e aggiornamento (decremento)
+	AccessiDisponibili tinyint unsigned, -- trigger per inizializzazione e aggiornamento (decremento)
 
 	primary key (NumeroFascicolo)
 );
@@ -54,6 +54,40 @@ create table if not exists Accessi (
 	foreign key (Operatore) references Operatori(ID)
 );
 
+-- SEZIONE STORED FUNCTIONS --
+
+drop function if exists calcola_crediti_disponibili;
+delimiter $$
+create function calcola_crediti_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned
+	begin
+		return (
+			case NumeroFamigliari
+				when 1 then 40
+				when 2 then 60
+				when 3 then 75
+				when 4 then 90
+				when 5 then 105
+				else 120
+			end
+        );
+	end
+$$
+delimiter ;
+
+drop function if exists calcola_accessi_disponibili;
+delimiter $$
+create function calcola_accessi_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned
+	begin
+		return (
+			case
+				when NumeroFamigliari <= 3 then 2
+				else 3
+			end
+        );
+	end
+$$
+delimiter ;
+
 -- SEZIONE TRIGGER --
 
 drop trigger if exists trigger_inserimento_cliente;
@@ -63,22 +97,8 @@ create trigger trigger_inserimento_cliente AFTER INSERT on Clienti
 	begin
 		update Clienti
 			set
-				CreditiDisponibili = (
-					case NumeroFamigliari
-					when 1 then 40
-					when 2 then 60
-					when 3 then 75
-					when 4 then 90
-					when 5 then 105
-					else 120
-					end
-				),
-				AccessiDisponibili = (
-					case
-					when NumeroFamigliari <= 3 then 2
-					else 3
-            	    end
-				)
+				CreditiDisponibili = calcola_crediti_disponibili (NumeroFamigliari),
+				AccessiDisponibili = calcola_accessi_disponibili (NumeroFamigliari)
 		; -- end of update statement
 	end
 $$ -- end of create trigger statement
@@ -91,22 +111,8 @@ create trigger trigger_aggiornamento_cliente AFTER UPDATE on Clienti
 	begin
 		update Clienti
 			set
-				CreditiDisponibili = (
-					case NumeroFamigliari
-					when 1 then 40
-					when 2 then 60
-					when 3 then 75
-					when 4 then 90
-					when 5 then 105
-					else 120
-					end
-				),
-				AccessiDisponibili = (
-					case
-					when NumeroFamigliari <= 3 then 2
-					else 3
-            	    end
-				)
+				CreditiDisponibili = calcola_crediti_disponibili (NumeroFamigliari),
+				AccessiDisponibili = calcola_accessi_disponibili (NumeroFamigliari)
 		; -- end of update statement
 	end
 $$ -- end of create trigger statement
@@ -134,22 +140,8 @@ create event aggiornamento_mensile_risorse on schedule EVERY 1 MONTH
 	begin
 		update Clienti
 			set
-				CreditiDisponibili = (
-					case NumeroFamigliari
-					when 1 then 40
-					when 2 then 60
-					when 3 then 75
-					when 4 then 90
-					when 5 then 105
-					else 120
-					end
-				),
-				AccessiDisponibili = (
-					case
-					when NumeroFamigliari <= 3 then 2
-					else 3
-            	    end
-				)
+				CreditiDisponibili = calcola_crediti_disponibili (NumeroFamigliari),
+				AccessiDisponibili = calcola_accessi_disponibili (NumeroFamigliari)
 		; -- end of update statement
 	end
 $$ -- end of create event statement
