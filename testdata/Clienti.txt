@@ -1,4 +1,0 @@
-Pirlo   Andrea  ITA 1   \N  \N  \N
-Chiellini   Giorgio ITA 2   \N  \N  \N
-Buffon  Gianluigi   ITA 3   \N  \N  \N
-Totti   Francesco   ITA 4   \N  \N  \N
