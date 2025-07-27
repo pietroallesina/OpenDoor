@@ -18,8 +18,8 @@ create table if not exists Clienti (
 	Cognome varchar(64) not null,
 	Nome varchar(64) not null,
 	Regione enum('ITA', 'PAK', 'AN') not null,
-	NumeroFascicolo int unsigned auto_increment,
 	NumeroFamigliari tinyint unsigned not null,
+	NumeroFascicolo int unsigned auto_increment,
 	CreditiDisponibili tinyint unsigned, -- trigger per inizializzazione e aggiornamento (decremento)
 	AccessiDisponibili tinyint unsigned, -- trigger per inizializzazione e aggiornamento (decremento)
 
