@@ -9,24 +9,22 @@ create trigger trigger_inserimento_cliente BEFORE INSERT on Clienti
 	for each row
 	begin
 		set
-			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
-			, NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari)
+			new.AccessiDisponibili = calcola_accessi_disponibili (new.NumeroFamigliari)
+			, new.CreditiDisponibili = calcola_crediti_disponibili (new.NumeroFamigliari)
 		;
 	end
 $$
 delimiter ;
 
-drop trigger if exists trigger_inserimento_accesso;
+-- trigger inserimento prenotazione, IDcliente e IDoperatore non possono essere null
+drop trigger if exists trigger_inserimento_prenotazione;
 delimiter $$
-create trigger trigger_inserimento_accesso AFTER INSERT on Accessi
+create trigger trigger_inserimento_prenotazione BEFORE INSERT on Prenotazioni
 	for each row
-	begin
-		update Clienti
-			set
-				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili - 1
-				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - NEW.CreditiSpesi
-			where Clienti.ID = NEW.Cliente
-		;
+    begin
+		if new.Cliente is NULL or new.Operatore is NULL
+		then SIGNAL sqlstate '45000' SET message_text = 'I campi Cliente e Operatore non possono essere NULL all\'inserimento';
+        end if;
 	end
 $$
 delimiter ;
