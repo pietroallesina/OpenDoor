@@ -1,6 +1,6 @@
-drop database if exists PortaAperta;
-create database if not exists PortaAperta;
-use PortaAperta;
+drop database if exists OpenDoor;
+create database if not exists OpenDoor;
+use OpenDoor;
 
 -- SEZIONE TABELLE --
 
@@ -45,7 +45,7 @@ drop table if exists Accessi;
 create table if not exists Accessi (
 	Cliente int unsigned,
 	Operatore smallint unsigned,
-	Data_Orario datetime not null,
+	Data_Orario datetime,
 	CreditiSpesi tinyint not null,
 	ID smallint auto_increment,
 	IDPrenotazione smallint,

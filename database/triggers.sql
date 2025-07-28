@@ -1,4 +1,4 @@
-use PortaAperta;
+use OpenDoor;
 SET GLOBAL event_scheduler = ON;
 
 -- SEZIONE STORED FUNCTIONS --
@@ -39,30 +39,29 @@ delimiter ;
 
 drop trigger if exists trigger_inserimento_cliente;
 delimiter $$
-create trigger trigger_inserimento_cliente AFTER INSERT on Clienti
+create trigger trigger_inserimento_cliente BEFORE INSERT on Clienti
 	for each row
 	begin
-		update Clienti
-			set
-				CreditiDisponibili = calcola_crediti_disponibili (NumeroFamigliari),
-				AccessiDisponibili = calcola_accessi_disponibili (NumeroFamigliari)
+		set
+			NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari),
+			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
 		;
 	end
 $$
 delimiter ;
 
+-- condizione aggiornamento troppo vaga --
 drop trigger if exists trigger_aggiornamento_cliente;
-delimiter $$
-create trigger trigger_aggiornamento_cliente AFTER UPDATE on Clienti
-	for each row
-	begin
-		update Clienti
-			set
-				CreditiDisponibili = calcola_crediti_disponibili (NumeroFamigliari),
-				AccessiDisponibili = calcola_accessi_disponibili (NumeroFamigliari)
-		;
-	end
-$$
+-- delimiter $$
+-- create trigger trigger_aggiornamento_cliente BEFORE UPDATE on Clienti
+-- 	for each row
+-- 	begin
+-- 		set
+-- 			NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari),
+-- 			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
+-- 		;
+-- 	end
+-- $$
 delimiter ;
 
 drop trigger if exists trigger_inserimento_accesso;
@@ -72,9 +71,9 @@ create trigger trigger_inserimento_accesso AFTER INSERT on Accessi
 	begin
 		update Clienti
 			set
-				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - Accessi.CreditiSpesi,
+				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - NEW.CreditiSpesi,
 				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili - 1
-			where Clienti.ID = Accessi.Cliente
+			where Clienti.ID = NEW.Cliente
 		;
 	end
 $$
@@ -82,7 +81,7 @@ delimiter ;
 
 drop event if exists aggiornamento_mensile_risorse;
 delimiter $$
-create event aggiornamento_mensile_risorse on schedule EVERY 1 MONTH
+create event aggiornamento_mensile_risorse on schedule EVERY 1 MONTH -- STARTS [first of month]
 	do
 	begin
 		update Clienti
