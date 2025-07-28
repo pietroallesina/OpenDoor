@@ -4,9 +4,9 @@ use OpenDoor;
 
 drop table if exists Operatori;
 create table if not exists Operatori (
-	Cognome varchar(64) NOT NULL,
+	Cognome varchar(64) NOT NULL
 	, Nome varchar(64) NOT NULL
-	, ID smallint unsigned AUTO_INCREMENT NOT NULL
+	, ID smallint unsigned NOT NULL AUTO_INCREMENT
 
 	, primary key (ID)
 );
@@ -17,7 +17,7 @@ create table if not exists Clienti (
 	, Nome varchar(64) NOT NULL
 	, Regione enum('ITA', 'PAK', 'AN') NOT NULL
 	, NumeroFamigliari tinyint unsigned NOT NULL
-	, ID smallint unsigned AUTO_INCREMENT NOT NULL
+	, ID smallint unsigned  NOT NULL AUTO_INCREMENT
 	, AccessiDisponibili tinyint unsigned NULL
     , CreditiDisponibili tinyint unsigned NULL
 
@@ -29,27 +29,10 @@ create table if not exists Prenotazioni (
 	Cliente smallint unsigned NULL
     , Operatore smallint unsigned NULL
 	, DataPrenotata date NOT NULL
-	, ID int unsigned AUTO_INCREMENT NOT NULL
-
-	-- , DataInserimento datetime default current_timestamp()
-	-- , DataAggiornamento datetime default current_timestamp() on update current_timestamp()
-
+	, OrarioAccesso time NULL DEFAULT NULL
+	, CreditiSpesi tinyint unsigned NULL DEFAULT NULL
+	, ID int unsigned NOT NULL AUTO_INCREMENT
 	, primary key (ID)
-	-- , foreign key (Cliente) references Clienti(ID) on DELETE set NULL
-	-- , foreign key (Operatore) references Operatori(ID) on DELETE set NULL
-);
-
-drop table if exists Accessi;
-create table if not exists Accessi (
-	Cliente smallint unsigned NULL
-	, Operatore smallint unsigned NULL
-	, Data_Orario datetime NULL -- NOT NULL in production
-	, CreditiSpesi tinyint unsigned NULL
-	, ID int unsigned AUTO_INCREMENT NOT NULL
-	, IDPrenotazione int unsigned NULL
-
-	, primary key (ID)
-	-- , foreign key (Cliente) references Clienti(ID) on DELETE set NULL
-	-- , foreign key (Operatore) references Operatori(ID) on DELETE set NULL
-	-- , foreign key (IDPrenotazione) references Prenotazioni(ID) on DELETE set NULL
+	, foreign key (Cliente) references Clienti(ID) on DELETE set NULL
+	, foreign key (Operatore) references Operatori(ID) on DELETE set NULL
 );

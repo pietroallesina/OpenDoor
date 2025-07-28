@@ -16,22 +16,6 @@ create trigger trigger_inserimento_cliente BEFORE INSERT on Clienti
 $$
 delimiter ;
 
--- condizione aggiornamento troppo vaga --
-drop trigger if exists trigger_aggiornamento_cliente;
-/*
-delimiter $$
-create trigger trigger_aggiornamento_cliente BEFORE UPDATE on Clienti
-	for each row
-	begin
-		set
-			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
-            , NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari)
-		;
-	end
-$$
-delimiter ;
-*/
-
 drop trigger if exists trigger_inserimento_accesso;
 delimiter $$
 create trigger trigger_inserimento_accesso AFTER INSERT on Accessi

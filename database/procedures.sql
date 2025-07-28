@@ -22,8 +22,8 @@ create procedure procedura_aggiornamento_cliente(in ID smallint unsigned, in Cog
 			set
 				Clienti.Cognome = Cognome, Clienti.Nome = Nome
                 , Clienti.Regione = Regione, Clienti.NumeroFamigliari = NumeroFamigliari
-                , Clienti.CreditiDisponibili = calcola_crediti_disponibili(NumeroFamigliari) -- condizionale
-                , Clienti.AccessiDisponibili = calcola_accessi_disponibili(NumeroFamigliari) -- condizionale
+                , Clienti.CreditiDisponibili = if(refill, calcola_crediti_disponibili(NumeroFamigliari), NULL) -- condizionale
+                , Clienti.AccessiDisponibili = if(refill, calcola_accessi_disponibili(NumeroFamigliari), NULL) -- condizionale
 			where Clienti.ID = ID
 		;
 	end
@@ -54,13 +54,14 @@ create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotat
 $$
 delimiter ;
 
+-- trasformo prenotazione in accesso
 drop procedure if exists procedura_inserimento_accesso;
 delimiter $$
-create procedure procedura_inserimento_accesso(in Cliente smallint unsigned, in Operatore smallint unsigned, in Data_Orario datetime, in CreditiSpesi tinyint unsigned, in IDPrenotazione int unsigned)
+create procedure procedura_inserimento_accesso(in OrarioAccesso time, in CreditiSpesi tinyint unsigned, in ID int unsigned)
 	begin
-		insert into
-			Accessi(Cliente, Operatore, Data_Orario, CreditiSpesi, IDPrenotazione)
-            values(Cliente, Operatore, Data_Orario, CreditiSpesi, IDPrenotazione)
+		update Prenotazioni
+			set Prenotazione.OrarioAccesso = OrarioAccesso, Prenotazione.CreditiSpesi = CreditiSpesi
+			where Prenotazione.ID = ID
 		;
     end
 $$
