@@ -1,40 +1,6 @@
 use OpenDoor;
 SET GLOBAL event_scheduler = ON;
 
--- SEZIONE STORED FUNCTIONS --
-
-drop function if exists calcola_crediti_disponibili;
-delimiter $$
-create function calcola_crediti_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned deterministic
-	begin
-		return (
-			case NumeroFamigliari
-				when 1 then 40
-				when 2 then 60
-				when 3 then 75
-				when 4 then 90
-				when 5 then 105
-				else 120
-			end
-        );
-	end
-$$
-delimiter ;
-
-drop function if exists calcola_accessi_disponibili;
-delimiter $$
-create function calcola_accessi_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned deterministic
-	begin
-		return (
-			case
-				when NumeroFamigliari <= 3 then 2
-				else 3
-			end
-        );
-	end
-$$
-delimiter ;
-
 -- SEZIONE TRIGGER --
 
 drop trigger if exists trigger_inserimento_cliente;
@@ -43,8 +9,8 @@ create trigger trigger_inserimento_cliente BEFORE INSERT on Clienti
 	for each row
 	begin
 		set
-			NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari),
 			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
+			, NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari)
 		;
 	end
 $$
@@ -52,17 +18,19 @@ delimiter ;
 
 -- condizione aggiornamento troppo vaga --
 drop trigger if exists trigger_aggiornamento_cliente;
--- delimiter $$
--- create trigger trigger_aggiornamento_cliente BEFORE UPDATE on Clienti
--- 	for each row
--- 	begin
--- 		set
--- 			NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari),
--- 			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
--- 		;
--- 	end
--- $$
+/*
+delimiter $$
+create trigger trigger_aggiornamento_cliente BEFORE UPDATE on Clienti
+	for each row
+	begin
+		set
+			NEW.AccessiDisponibili = calcola_accessi_disponibili (NEW.NumeroFamigliari)
+            , NEW.CreditiDisponibili = calcola_crediti_disponibili (NEW.NumeroFamigliari)
+		;
+	end
+$$
 delimiter ;
+*/
 
 drop trigger if exists trigger_inserimento_accesso;
 delimiter $$
@@ -71,17 +39,19 @@ create trigger trigger_inserimento_accesso AFTER INSERT on Accessi
 	begin
 		update Clienti
 			set
-				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - NEW.CreditiSpesi,
 				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili - 1
+				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - NEW.CreditiSpesi
 			where Clienti.ID = NEW.Cliente
 		;
 	end
 $$
 delimiter ;
 
+-- SEZIONE EVENTS --
+
 drop event if exists aggiornamento_mensile_risorse;
 delimiter $$
-create event aggiornamento_mensile_risorse on schedule EVERY 1 MONTH -- STARTS [first of month]
+create event aggiornamento_mensile_risorse on schedule EVERY 1 MONTH STARTS DATE_FORMAT(CURDATE(), '%Y-%m-01')
 	do
 	begin
 		update Clienti
