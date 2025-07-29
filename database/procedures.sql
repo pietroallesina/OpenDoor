@@ -4,11 +4,11 @@ use OpenDoor;
 
 drop procedure if exists procedura_inserimento_operatore;
 delimiter $$
-create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64))
+create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password char(24))
 	begin
 		insert into
-			Operatori(Cognome, Nome)
-            values(Cognome, Nome)
+			Operatori(Cognome, Nome, Password)
+            values(Cognome, Nome, Password)
 		;
     end
 $$
