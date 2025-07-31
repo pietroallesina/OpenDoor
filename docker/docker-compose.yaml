@@ -5,13 +5,26 @@ volumes:
 
 services:
   php:
-    image: php:latest
-    command: php -S localhost:8000 -t ../public
+#    image: php-opendoor
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM php:8.4
+        RUN docker-php-ext-install mysqli
+        CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/html"]
+    volumes:
+      - ../public:/var/www/html:ro
+    ports:
+      - "8000:8000"
     depends_on:
       - mysql
 
   mysql:
-    image: mysql:latest
-    environment: #todo
+    image: mysql:9.2
+    environment:
+      MYSQL_DATABASE: OpenDoor
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
     volumes:
-      - dbdata:/var/lib/mysql
+      - dbdata:/var/lib/mysql # data
+      - ../database/scripts/:/docker-entrypoint-initdb.d/:ro # sql scripts, executed in alphabetical order
+#      - ../database/my.cnf:/etc/my.cnf # optional additional configuration
