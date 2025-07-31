@@ -6,7 +6,7 @@ drop table if exists Operatori;
 create table if not exists Operatori (
 	Cognome varchar(64) NOT NULL
 	, Nome varchar(64) NOT NULL
-	, Password char(24) NOT NULL
+	, Password varchar(255) NOT NULL
 	, ID smallint unsigned NOT NULL AUTO_INCREMENT
 
 	, primary key (ID)
