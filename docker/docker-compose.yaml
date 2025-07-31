@@ -1,0 +1,17 @@
+name: OpenDoor
+
+volumes:
+  dbdata:
+
+services:
+  php:
+    image: php:latest
+    command: php -S localhost:8000 -t ../public
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    environment: #todo
+    volumes:
+      - dbdata:/var/lib/mysql
