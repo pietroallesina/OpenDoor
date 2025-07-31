@@ -5,9 +5,8 @@ volumes:
 
 services:
   php:
-#    image: php-opendoor
+    image: opendoor-php
     build:
-      context: .
       dockerfile_inline: |
         FROM php:8.4
         RUN docker-php-ext-install mysqli
@@ -20,7 +19,10 @@ services:
       - mysql
 
   mysql:
-    image: mysql:9.2
+    image: opendoor-mysql
+    build:
+      dockerfile_inline: |
+        FROM mysql:9.2
     environment:
       MYSQL_DATABASE: OpenDoor
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
