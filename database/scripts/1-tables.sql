@@ -7,6 +7,7 @@ create table if not exists Operatori (
 	Cognome varchar(64) NOT NULL
 	, Nome varchar(64) NOT NULL
 	, Password varchar(255) NOT NULL
+	, Admin boolean NOT NULL DEFAULT false
 	, ID smallint unsigned NOT NULL AUTO_INCREMENT
 
 	, primary key (ID)
@@ -31,7 +32,8 @@ create table if not exists Prenotazioni (
     , Operatore smallint unsigned NULL
 	, DataPrenotata date NOT NULL
 	, OrarioAccesso time NULL DEFAULT NULL
-	, CreditiSpesi tinyint unsigned NULL DEFAULT NULL
+	, CreditiSpesi tinyint unsigned NOT NULL
+	, Stato enum('PRENOTATA', 'COMPLETATA', 'ANNULLATA', 'INATTESA') NOT NULL DEFAULT 'PRENOTATA'
 	, ID int unsigned NOT NULL AUTO_INCREMENT
 	, primary key (ID)
 	, foreign key (Cliente) references Clienti(ID) on DELETE set NULL

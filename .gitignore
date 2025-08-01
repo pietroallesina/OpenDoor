@@ -1,7 +1,6 @@
-launch_mysqlserver_container.sh
 Todo
 Specifiche
 Progetto
-testdata/
-populate.sql
+database/testdata/
+database/populate.sql
 *.swp
