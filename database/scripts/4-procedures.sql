@@ -55,8 +55,8 @@ create procedure procedura_aggiornamento_cliente(in ID smallint unsigned, in Cog
 			set
 				Clienti.Cognome = Cognome, Clienti.Nome = Nome
                 , Clienti.Regione = Regione, Clienti.NumeroFamigliari = NumeroFamigliari
-                , Clienti.CreditiDisponibili = if(refill, calcola_crediti_disponibili(NumeroFamigliari), Clienti.CreditiDisponibili) -- condizionale
                 , Clienti.AccessiDisponibili = if(refill, calcola_accessi_disponibili(NumeroFamigliari), Clienti.AccessiDisponibili) -- condizionale
+                , Clienti.CreditiDisponibili = if(refill, calcola_crediti_disponibili(NumeroFamigliari), Clienti.CreditiDisponibili) -- condizionale
 			where Clienti.ID = ID
 		;
 	end
@@ -103,12 +103,29 @@ drop procedure if exists procedura_aggiornamento_prenotazione;
 delimiter $$
 create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotata date, in CreditiSpesi tinyint unsigned)
 	begin
-		IF (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
+		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
+		-- variabili locali
+		set @Cliente = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID);
+		if @Cliente is NULL
+			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione non trovata';
+		end if;
+
+		set @old_CreditiSpesi = (select Prenotazioni.CreditiSpesi from Prenotazioni where Prenotazioni.ID = ID);
+
+		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = @Cliente) + @old_CreditiSpesi < CreditiSpesi
+			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
+		end if;
+
 		update Prenotazioni
-			set Prenotazione.DataPrenotata = DataPrenotata, Prenotazione.CreditiSpesi = CreditiSpesi
-			where Prenotazione.ID = ID
+			set Prenotazioni.DataPrenotata = DataPrenotata, Prenotazioni.CreditiSpesi = CreditiSpesi
+			where Prenotazioni.ID = ID
+		;
+		update Clienti
+			set
+				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + @old_CreditiSpesi - CreditiSpesi
+			where Clienti.ID = @Cliente
 		;
     end
 $$

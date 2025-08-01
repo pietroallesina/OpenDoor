@@ -27,6 +27,5 @@ services:
       MYSQL_DATABASE: OpenDoor
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
     volumes:
-      - dbdata:/var/lib/mysql # data
+      - dbdata:/var/lib/mysql:rw # data
       - ../database/scripts/:/docker-entrypoint-initdb.d/:ro # sql scripts, executed in alphabetical order
-#      - ../database/my.cnf:/etc/my.cnf # optional additional configuration

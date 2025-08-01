@@ -1,6 +1,3 @@
-Todo
-Specifiche
-Progetto
-database/testdata/
-database/populate.sql
+database/testing
 *.swp
+*.txt
