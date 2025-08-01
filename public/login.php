@@ -7,26 +7,16 @@
             die("Connection failed: " . $mysqli->connect_error);
         }
 
-        $query = "SELECT Password FROM Operatori WHERE Cognome = ? AND Nome = ?";
-        $result = $mysqli->execute_query($query, $cognome, $nome);
-        if (!$result) {
-            die("Query failed: " . $mysqli->error);
-        }
-
-        // Fetch the result
-        $row = $result->fetch_assoc(); // fetch_assoc() returns an associative array of the result
-        if ($row) {
-            $hashed_password = $row['Password'];
-            if (password_verify($password, $hashed_password)) {
-                post_login($nome);
-            } else {
-                echo "Credenziali non valide.";
-            }
+        $query = "CALL procedura_login_operatore(?, ?, ?)";
+        $params = [$cognome, $nome, $password];
+        $result = $mysqli->execute_query($query, $params);
+        if ($result === false) {
+            echo "<p>Errore durante il login: " . $mysqli->error . "</p>";
         } else {
-            echo "Credenziali non valide.";
+            post_login($nome);
         }
 
-        $result->free();
+        // $result->free();
         $mysqli->close();
         exit();
     }
@@ -43,7 +33,7 @@
 <html>
     <head>
         <title>Login</title>
-        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="style.css">
     </head>
     
     <body>

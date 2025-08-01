@@ -1,4 +1,5 @@
 use OpenDoor;
+set foreign_key_checks = 0;
 
 -- SEZIONE TABELLE --
 
@@ -39,3 +40,4 @@ create table if not exists Prenotazioni (
 	, foreign key (Cliente) references Clienti(ID) on DELETE set NULL
 	, foreign key (Operatore) references Operatori(ID) on DELETE set NULL
 );
+set foreign_key_checks = 1;

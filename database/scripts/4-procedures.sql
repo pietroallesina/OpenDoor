@@ -4,7 +4,7 @@ use OpenDoor;
 
 drop procedure if exists procedura_inserimento_operatore;
 delimiter $$
-create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean)
+create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean default false)
 	begin
 		-- controllo se l'operatore esiste già
 		if exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
@@ -38,16 +38,12 @@ delimiter ;
 
 drop procedure if exists procedura_login_operatore;
 delimiter $$
-create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), out @ID smallint unsigned)
+create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255))
 	begin
-		-- controllo se l'operatore esiste già
+		-- controllo se l'operatore esiste già e se la password è corretta
 		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome and Operatori.Password = Password)
 			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato o password errata';
 		end if;
-
-		-- restituisco l'ID dell'operatore
-		select Operatori.ID from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome and Operatori.Password = Password
-		into @ID;
 	end
 $$
 delimiter ;
@@ -110,7 +106,7 @@ create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned
 		if (select Clienti.AccessiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) = 0
 			then SIGNAL sqlstate '45000' SET message_text = 'Il cliente ha esaurito gli accessi';
 
-		else if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < CreditiSpesi
+		elseif (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < CreditiSpesi
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
 
 		end if;
@@ -134,18 +130,21 @@ drop procedure if exists procedura_aggiornamento_prenotazione;
 delimiter $$
 create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotata date, in CreditiSpesi tinyint unsigned)
 	begin
+		declare Cliente smallint unsigned;
+		declare old_CreditiSpesi tinyint unsigned;
+        
 		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
+		end if;
 
-		-- variabili locali
-		set @Cliente = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID);
-		if @Cliente is NULL
+		set Cliente = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID);
+		if Cliente is NULL
 			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione non trovata';
 		end if;
 
-		set @old_CreditiSpesi = (select Prenotazioni.CreditiSpesi from Prenotazioni where Prenotazioni.ID = ID);
+		set old_CreditiSpesi = (select Prenotazioni.CreditiSpesi from Prenotazioni where Prenotazioni.ID = ID);
 
-		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = @Cliente) + @old_CreditiSpesi < CreditiSpesi
+		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = Cliente) + old_CreditiSpesi < CreditiSpesi
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
 		end if;
 
@@ -155,8 +154,8 @@ create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotat
 		;
 		update Clienti
 			set
-				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + @old_CreditiSpesi - CreditiSpesi
-			where Clienti.ID = @Cliente
+				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + old_CreditiSpesi - CreditiSpesi
+			where Clienti.ID = Cliente
 		;
     end
 $$
@@ -166,8 +165,9 @@ drop procedure if exists procedura_annullamento_prenotazione;
 delimiter $$
 create procedure procedura_annullamento_prenotazione(in ID int unsigned)
 	begin
-		IF (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
+		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
+		end if;
 
 		update Clienti
 			set
@@ -192,7 +192,7 @@ create procedure procedura_inserimento_accesso(in ID int unsigned, in OrarioAcce
 		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
-        else if OrarioAccesso is NULL
+        elseif OrarioAccesso is NULL
 			then SIGNAL sqlstate '45000' SET message_text = 'Il campo OrarioAccesso non può essere NULL';
 
         end if;

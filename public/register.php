@@ -7,20 +7,16 @@
             die("Connection failed: " . $mysqli->connect_error);
         }
 
-        $query = "CALL procedura_registrazione_operatore(?, ?, ?)";
-        $result = $mysqli->execute_query($query, $cognome, $nome, password_hash($password, PASSWORD_DEFAULT));
-        if (!$result) {
-            die("Query failed: " . $mysqli->error);
-        }
-        // Check if the registration was successful
-        if ($result->num_rows > 0) {
-            echo "Registrazione completata con successo.";
-            post_login($nome);
+        $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
+        $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), 0];
+        $result = $mysqli->execute_query($query, $params);
+        if ($result === false) {
+            echo "<p>Errore durante la registrazione: " . $mysqli->error . "</p>";
         } else {
-            echo "Registrazione fallita o operatore già esistente.";
+            post_login($nome);
         }
 
-        $result->free();
+        // $result->free();
         $mysqli->close();
         exit();
     }
@@ -37,7 +33,7 @@
 <html>
     <head>
         <title>Registrazione</title>
-        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="style.css">
     </head>
 
     <body>
