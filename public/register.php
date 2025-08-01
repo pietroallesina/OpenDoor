@@ -7,25 +7,20 @@
             die("Connection failed: " . $mysqli->connect_error);
         }
 
-        // Prepare and bind
-        $stmt = $mysqli->prepare("CALL procedura_inserimento_operatore(?, ?, ?)");
-        if (!$stmt) {
-            die("Prepare failed: " . $mysqli->error);
+        $query = "CALL procedura_registrazione_operatore(?, ?, ?)";
+        $result = $mysqli->execute_query($query, $cognome, $nome, password_hash($password, PASSWORD_DEFAULT));
+        if (!$result) {
+            die("Query failed: " . $mysqli->error);
         }
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        if (!$stmt->bind_param("sss", $cognome, $nome, $hashed_password)) {
-            die("Bind failed: " . $stmt->error);
-        }
-
-        // Execute the statement
-        if ($stmt->execute()) {
+        // Check if the registration was successful
+        if ($result->num_rows > 0) {
+            echo "Registrazione completata con successo.";
             post_login($nome);
         } else {
-            echo "Errore: " . $stmt->error;
+            echo "Registrazione fallita o operatore già esistente.";
         }
 
-        // Close the connections
-        $stmt->close();
+        $result->free();
         $mysqli->close();
         exit();
     }

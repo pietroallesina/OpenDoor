@@ -6,6 +6,11 @@ drop procedure if exists procedura_inserimento_operatore;
 delimiter $$
 create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean)
 	begin
+		-- controllo se l'operatore esiste già
+		if exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
+			then SIGNAL sqlstate '45000' SET message_text = 'Operatore già esistente';
+		end if;
+
 		insert into
 			Operatori(Cognome, Nome, Password, Admin)
             values(Cognome, Nome, Password, Admin)
@@ -18,6 +23,11 @@ drop procedure if exists procedura_aggiornamento_operatore;
 delimiter $$
 create procedure procedura_aggiornamento_operatore(in ID smallint unsigned, in Cognome varchar(64), in Nome varchar(64), in Admin boolean)
 	begin
+		-- controllo se l'operatore esiste già
+		if not exists(select * from Operatori where Operatori.ID = ID)
+			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato';
+		end if;
+
 		update Operatori
 			set Operatori.Cognome = Cognome, Operatori.Nome = Nome, Operatori.Admin = Admin
 			where Operatori.ID = ID
@@ -26,10 +36,31 @@ create procedure procedura_aggiornamento_operatore(in ID smallint unsigned, in C
 $$
 delimiter ;
 
+drop procedure if exists procedura_login_operatore;
+delimiter $$
+create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), out @ID smallint unsigned)
+	begin
+		-- controllo se l'operatore esiste già
+		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome and Operatori.Password = Password)
+			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato o password errata';
+		end if;
+
+		-- restituisco l'ID dell'operatore
+		select Operatori.ID from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome and Operatori.Password = Password
+		into @ID;
+	end
+$$
+delimiter ;
+
 drop procedure if exists procedura_eliminazione_operatore;
 delimiter $$
 create procedure procedura_eliminazione_operatore(in ID smallint unsigned)
 	begin
+		-- controllo se l'operatore esiste già
+		if not exists(select * from Operatori where Operatori.ID = ID)
+			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato';
+		end if;
+
 		delete from Operatori where Operatori.ID = ID;
     end
 $$
