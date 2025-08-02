@@ -2,21 +2,41 @@
     require_once 'functions.php';
 
     function login_operatore($cognome, $nome, $password) {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        if ($mysqli->connect_error) {
-            die("Connection failed: " . $mysqli->connect_error);
+        try {
+            $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        } catch (Exception $e) {
+            die("Database connection failed: " . $e->getMessage());
         }
 
-        $query = "CALL procedura_login_operatore(?, ?, ?)";
-        $params = [$cognome, $nome, $password];
-        $result = $mysqli->execute_query($query, $params);
-        if ($result === false) {
-            echo "<p>Errore durante il login: " . $mysqli->error . "</p>";
-        } else {
-            post_login($nome);
+        $query = "CALL procedura_login_operatore(?, ?, @password)";
+        $params = [$cognome, $nome];
+
+        try {
+            $mysqli->execute_query($query, $params);
+        } catch (Exception $e) {
+            echo "<p>Errore durante il login: " . $e->getMessage() . "</p>";
+            $mysqli->close();
+            exit();    
         }
 
-        // $result->free();
+        // Recupero la password hashata dall'operatore
+        try {
+            $result = $mysqli->query("SELECT @password AS password");
+            $true_password = $result->fetch_assoc()['password'];
+        } catch (Exception $e) {
+            echo "<p>Errore durante il recupero della password: " . $e->getMessage() . "</p>";
+            $mysqli->close();
+            exit();
+        }
+
+        // Verifico la password inserita
+        if (!password_verify($password, $true_password)) {
+            echo "<p>Credenziali non valide. Riprova.</p>";
+        }
+        else {
+            post_login($nome); // Login successful, redirect to dashboard
+        }
+
         $mysqli->close();
         exit();
     }

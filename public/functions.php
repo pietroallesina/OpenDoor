@@ -3,14 +3,14 @@
     const UNLOGGED = 0, LOGGED = 1;
 
     function get_db_status() {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        if ($mysqli->connect_error) {
-            $status = false;
-        } else {
-            $status = true;
+        try {
+            $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+            $status = $mysqli->connect_error ? false : true;
+            $mysqli->close();
+            return $status;
+        } catch (Exception $e) {
+            return false;
         }
-        $mysqli->close();
-        return $status;
     }
 
     function post_login($nome) {

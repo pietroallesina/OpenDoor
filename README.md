@@ -1,34 +1,32 @@
 # OpenDoor
 
-OpenDoor is a web application designed to facilitate secure and easy access management for users.
+OpenDoor è un'applicazione web per la gestione delle attività dell'associazione Porta Aperta
 
-## Features
+## Caratteristiche
 
-- User authentication and authorization
-- Role-based access control
-- Responsive user interface
-- RESTful API integration
+- Autenticazione degli operatori
+- Configurazione dinamica
+- Interfaccia semplice e funzionale
+- Automazione dei compiti ripetitivi
+- Eliminazione degli errori umani
 
-## Getting Started
+## Come utilizzare
 
-1. Clone the repository:
+1. Clona la repo:
     ```
     git clone https://github.com/yourusername/OpenDoor.git
     ```
-2. Install Docker:
+2. Installa Docker CLI (o Docker Desktop):
     ```
     apt install docker
     ```
-3. Start the development server:
+3. Avvia il servizio:
     ```
     docker compose up -d
     ```
 
-## Technologies Used
+## Tecnologie utilizzate
 
 - MySQL
-- PHP
-
-## Contributing
-
-Contributions are welcome! Please submit a pull request or open an issue for suggestions.
+- PHP + mysqli
+- Docker Compose

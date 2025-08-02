@@ -4,7 +4,7 @@ use OpenDoor;
 
 drop procedure if exists procedura_inserimento_operatore;
 delimiter $$
-create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean default false)
+create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean)
 	begin
 		-- controllo se l'operatore esiste già
 		if exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
@@ -38,12 +38,15 @@ delimiter ;
 
 drop procedure if exists procedura_login_operatore;
 delimiter $$
-create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255))
+create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), out true_password varchar(255))
 	begin
 		-- controllo se l'operatore esiste già e se la password è corretta
-		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome and Operatori.Password = Password)
-			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato o password errata';
+		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
+			then SIGNAL sqlstate '45000' SET message_text = 'Operatore non trovato';
 		end if;
+
+		-- restituisco la password hashata dell'operatore
+		select Operatori.Password from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome into true_password;
 	end
 $$
 delimiter ;

@@ -2,21 +2,22 @@
     require_once 'functions.php';
 
     function registra_operatore($cognome, $nome, $password) {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        if ($mysqli->connect_error) {
-            die("Connection failed: " . $mysqli->connect_error);
+        try {
+            $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        } catch (Exception $e) {
+            die("Database connection failed: " . $e->getMessage());
         }
 
         $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
-        $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), 0];
-        $result = $mysqli->execute_query($query, $params);
-        if ($result === false) {
-            echo "<p>Errore durante la registrazione: " . $mysqli->error . "</p>";
-        } else {
-            post_login($nome);
+        $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), 0]; // 1 for Admin, 0 for User
+
+        try {
+            $mysqli->execute_query($query, $params);
+            post_login($nome); // Automatically log in after registration
+        } catch (Exception $e) {
+            echo "<p>Errore durante la registrazione: " . $e->getMessage() . "</p>";
         }
 
-        // $result->free();
         $mysqli->close();
         exit();
     }
