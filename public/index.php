@@ -1,4 +1,5 @@
 <?php
+    require_once '../templates/router.php';
     require_once '../templates/header.php';
     require_once 'functions.php';
 ?>
