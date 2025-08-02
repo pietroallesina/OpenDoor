@@ -10,9 +10,9 @@ services:
       dockerfile_inline: |
         FROM php:8.4
         RUN docker-php-ext-install mysqli
-        CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/html"]
+        CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/public"]
     volumes:
-      - ./public:/var/www/html:ro
+      - ./:/var/www/
     ports:
       - "8000:8000"
     depends_on:
