@@ -7,6 +7,11 @@
     <head>
         <title>Benvenuto!</title>
         <link rel="stylesheet" href="style.css">
+        <link rel="icon" href="../includes/favicon.ico" type="image/x-icon">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Pagina principale del sito di gestione di Porta Aperta">
+        <meta name="keywords" content="Porta Aperta, gestione, operatore, accesso, registrazione">
     </head>
 
     <body>
