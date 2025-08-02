@@ -11,5 +11,3 @@ class Operatore {
         $this->isAdmin = $isAdmin;
     }
 }
-
-?>
