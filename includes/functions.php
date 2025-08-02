@@ -17,7 +17,7 @@
         $_SESSION['stato_operatore'] = LOGGED;
         $_SESSION['nome_operatore'] = $nome;
         if ($_SESSION['stato_operatore'] === LOGGED) {
-            header("Location: dashboard.php");
+            header("Location: dashboard");
         }
     }
 

@@ -1,5 +1,6 @@
 <?php
-    require_once 'functions.php';
+    require_once '../includes/functions.php';
+    require_once '../includes/header.php';
 
     function login_operatore($cognome, $nome, $password) {
         try {
@@ -53,7 +54,7 @@
 <html>
     <head>
         <title>Login</title>
-        <link rel="stylesheet" href="style.css">
+        <?php headerTemplate(); ?>
     </head>
     
     <body>
@@ -72,7 +73,7 @@
         </form>
 
         <br>
-        <p><a href="index.php">Torna alla home</a></p>
+        <p><a href="home">Torna alla home</a></p>
 
     </body>
 </html>

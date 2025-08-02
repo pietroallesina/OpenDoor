@@ -1,5 +1,5 @@
 <?php
-    require_once '../templates/header.php';
+    require_once '../includes/header.php';
 ?>
 
 <!DOCTYPE html>
