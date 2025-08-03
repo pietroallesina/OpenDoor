@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['operatore'])) {
+if (!isset($_SESSION['operatore']) || !$_SESSION['operatore']->isAdmin()) {
     header("Location: home");
     exit();
 }
@@ -10,16 +10,15 @@ if (!isset($_SESSION['operatore'])) {
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Dashboard</title>
+        <title>Admin</title>
         <?php require_once '../includes/header.php'; ?>
     </head>
 
     <body>
         <?php require_once '../includes/navbar.php'; ?>
 
-        <h1>Menu Operatore</h1>
-        <p>Benvenuto, <?php echo $_SESSION['operatore']->nome();?>!</p>
-        <p><a href="home">Torna alla home</a></p>
+        <h1>Area Riservata</h1>
+        <p>Benvenuto, <?php echo $_SESSION['operatore']->nome(); ?>!</p>
         <p><a href="logout">Logout</a></p>
     </body>
 </html>
