@@ -1,14 +1,16 @@
 <?php
 
-class Cliente {
-    private $cognome;
-    private $nome;
-    private $regione;
-    private $numerofamigliari;
-    private $accessidisponibili;
-    private $creditidisponibili;
+class Cliente
+{
+    private string $cognome;
+    private string $nome;
+    private string $regione;
+    private int $numerofamigliari;
+    private int $accessidisponibili;
+    private int $creditidisponibili;
 
-    public function __construct($cognome, $nome, $regione, $numerofamigliari, $accessidisponibili, $creditidisponibili) {
+    public function __construct(string $cognome, string $nome, string $regione, int $numerofamigliari, int $accessidisponibili, int $creditidisponibili)
+    {
         $this->cognome = $cognome;
         $this->nome = $nome;
         $this->regione = $regione;
