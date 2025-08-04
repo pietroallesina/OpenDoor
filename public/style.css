@@ -21,6 +21,11 @@ main {
     margin: 0 10rem;
 }
 
+main h1 {
+    margin-top: 4rem;
+    text-align: center;
+}
+
 /*****************/
 /* Header Styles */
 /*****************/

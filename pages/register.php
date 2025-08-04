@@ -1,26 +1,31 @@
 <?php
-function registrazione_operatore($cognome, $nome, $password): bool
+require_once '../includes/init.php';
+
+function registrazione_operatore(string $cognome, string $nome, bool $is_admin, string $password, string &$msg): void
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
         $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
-        $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), 0]; // 1 for Admin, 0 for User
+        $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), $is_admin];
         $mysqli->execute_query($query, $params);
     } catch (Exception $e) {
-        echo "<p>Errore durante la registrazione: " . $e->getMessage() . "</p>";
+        $msg = "Errore durante la registrazione: " . $e->getMessage();
         if (isset($mysqli)) {
             $mysqli->close();
         }
-        return false;
+        return;
     }
 
     $mysqli->close();
-    return true;
+
+    require_once '../classes/Operatore.php';
+    $operatore = new Operatore($cognome, $nome, $is_admin);
+    $_SESSION['operatore'] = $operatore;
+    header("Location: dashboard");
+    exit(); // always exit after a redirect
 }
 
 /*********************************************************/
-
-session_start();
 
 if (isset($_SESSION['operatore'])) {
     header("Location: dashboard");
@@ -28,14 +33,15 @@ if (isset($_SESSION['operatore'])) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $cognome = $_POST['cognome'];
-    $nome = $_POST['nome'];
-    $password = $_POST['password'];
-    if (registrazione_operatore($cognome, $nome, $password)) {
-        $operatore = new Operatore($cognome, $nome, false);
-        $_SESSION['operatore'] = $operatore;
-        header("Location: dashboard");
-        exit(); // always exit after a redirect
+    $msg = '';
+    if ($_POST["password"] != $_POST["password-check"]) {
+        $msg = "Le password non coincidono";
+    } else {
+        $cognome = $_POST['cognome'];
+        $nome = $_POST['nome'];
+        $password = $_POST['password'];
+        $is_admin = $_POST['isadmin'] ?? false;
+        registrazione_operatore($cognome, $nome, $is_admin, $password, $msg);
     }
 }
 ?>
@@ -44,30 +50,47 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 
 <head>
-    <title>Registrazione</title>
-    <?php require_once '../includes/header.php'; ?>
+    <?php require_once '../includes/head.php'; ?>
 </head>
 
 <body>
-    <?php require_once '../includes/navbar.php'; ?>
 
-    <h1>Registrazione Nuovo Utente</h1>
-    <form method="post" action="">
-        <label for="cognome">Cognome:</label>
-        <input type="text" id="cognome" name="cognome" required>
-        <br>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <input type="submit" value="Registrati">
-    </form>
+    <header>
+        <?php require_once '../includes/header.php'; ?>
+    </header>
 
-    <br>
-    <p><a href="home">Torna alla home</a></p>
+    <main>
+        <h1>Registrazione Operatore</h1>
+        <form method="post" action="">
+            <label for="cognome">Cognome:</label>
+            <input type="text" id="cognome" name="cognome" required>
+            <br>
+            
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <br>
+            
+            <label for="password">Inserisci password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            
+            <label for="password-confirm">Conferma password:</label>
+            <input type="password" id="password-confirm" name="password-check" required>
+            <br>
+
+            <label for="isadmin"> Amministratore </label>
+            <input type="checkbox" id="isadmin" name="isadmin">
+            <br>
+
+            <input type="submit" value="Registrati">
+        </form>
+
+        <?php if (isset($msg) && $msg != '') : ?>
+            <p> <?php echo $msg ?> </p>
+        <?php endif; ?>
+
+        <p><a href="home">Torna alla home</a></p>
+    </main>
 
 </body>
-
 </html>

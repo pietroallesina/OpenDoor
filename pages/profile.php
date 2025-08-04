@@ -19,7 +19,7 @@ if (!isset($_SESSION['operatore'])) {
     </header>
 
     <main>
-        <h1>Menu Operatore</h1>
+        <h1>Il mio profilo</h1>
 
         <p>Benvenuto, <?php echo $_SESSION['operatore']->nome();?>!</p>
     </main>

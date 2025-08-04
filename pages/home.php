@@ -1,19 +1,27 @@
 <?php
-session_start();
+// Set $head_title for custom page title
+require_once '../includes/init.php';
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Porta Aperta - Pagina Principale</title>
-    <?php require_once '../includes/header.php'; ?>
+    <?php require_once '../includes/head.php'; ?>
 </head>
 
 <body>
-    <?php require_once '../includes/navbar.php'; ?>
+    <header>
+        <?php require_once '../includes/header.php'; ?>
+    </header>
 
-    <h1>Pagina principale</h1>
-    <p style="text-align: center;">Benvenuto nella pagina principale del sito di gestione di Porta Aperta!</p>
+    <main>
+        <h1>Pagina principale</h1>
+        <p>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nam id, animi deserunt amet porro eos magnam explicabo soluta earum ab ullam omnis, laborum provident eaque officiis cupiditate eveniet, nesciunt neque.
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Vitae facere, quidem consectetur cupiditate, obcaecati cumque laborum quo a neque perspiciatis, iusto eius distinctio tempore suscipit velit pariatur aut necessitatibus ab?
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Veritatis mollitia at aut molestiae ex officia optio? Hic ex aperiam error iusto, incidunt harum molestias odio consectetur. Nobis ut blanditiis quia.
+        </p>
+    </main>
 
 </body>
 </html>

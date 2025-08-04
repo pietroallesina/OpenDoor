@@ -1,35 +1,44 @@
 <?php
-function login_operatore(string $cognome, string $nome, string $password): bool
+require_once '../includes/init.php';
+
+function login_operatore(string $cognome, string $nome, string $password, string &$msg): void
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        $query = "CALL procedura_login_operatore(?, ?, @password)";
+        $query = "CALL procedura_login_operatore(?, ?, @true_password, @isadmin)";
         $params = [$cognome, $nome];
         $mysqli->execute_query($query, $params);
-        $result = $mysqli->query("SELECT @password AS password");
+
+        $result = $mysqli->query("SELECT @true_password AS password");
         $true_password = $result->fetch_assoc()['password'];
+
+        $result = $mysqli->query('SELECT @isadmin AS isadmin');
+        $is_admin = $result->fetch_assoc()['isadmin'];
+
     } catch (Exception $e) {
-        echo "<p>Errore durante il login: " . $e->getMessage() . "</p>";
+        $msg = "Errore durante il login: " . $e->getMessage();
         if (isset($mysqli)) {
             $mysqli->close();
         }
-        return false;
+        return;
     }
 
     $mysqli->close();
 
     // Verifico la password inserita
     if (!password_verify($password, $true_password)) {
-        echo "<p>Credenziali non valide. Riprova.</p>";
-        return false;
+        $msg = "Credenziali non valide. Riprova.";
+        return;
     }
 
-    return true;
+    require_once '../classes/Operatore.php';
+    $operatore = new Operatore($cognome, $nome, $is_admin);
+    $_SESSION['operatore'] = $operatore;
+    header("Location: dashboard");
+    exit(); // always exit after a redirect
 }
 
 /*********************************************************/
-
-session_start();
 
 if (isset($_SESSION['operatore'])) {
     header("Location: dashboard");
@@ -40,12 +49,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cognome = $_POST['cognome'];
     $nome = $_POST['nome'];
     $password = $_POST['password'];
-    if (login_operatore($cognome, $nome, $password)) {
-        $operatore = new Operatore($cognome, $nome, false);
-        $_SESSION['operatore'] = $operatore;
-        header("Location: dashboard");
-        exit(); // always exit after a redirect
-    }
+    $msg = '';
+    login_operatore($cognome, $nome, $password, $msg);
 }
 ?>
 
@@ -53,30 +58,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 
 <head>
-    <title>Login</title>
-    <?php require_once '../includes/header.php'; ?>
+    <?php require_once '../includes/head.php'; ?>
 </head>
 
 <body>
-    <?php require_once '../includes/navbar.php'; ?>
+    <header>
+        <?php require_once '../includes/header.php'; ?>
+    </header>
 
-    <h1>Login</h1>
-    <form method="post" action="">
-        <label for="cognome">Cognome:</label>
-        <input type="text" id="cognome" name="cognome" required>
-        <br>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" name="nome" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <input type="submit" value="Accedi">
-    </form>
+    <main>
+        <h1>Login</h1>
+        <form method="post" action="">
+            <label for="cognome">Cognome:</label>
+            <input type="text" id="cognome" name="cognome" required>
+            <br>
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required>
+            <br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+            <input type="submit" value="Accedi">
+        </form>
 
-    <br>
-    <p><a href="home">Torna alla home</a></p>
+        <?php if (isset($msg) && $msg != '') : ?>
+            <p> <?php echo $msg ?> </p>
+        <?php endif; ?>
+
+        <p>
+            Sei un nuovo operatore?
+            <a href="register">Registrati</a>
+        </p>
+    </main>
 
 </body>
-
 </html>

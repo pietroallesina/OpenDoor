@@ -1,6 +1,8 @@
 <?php
 
-class Prenotazione {
+// Decidi tipi di dati per le proprietà
+class Prenotazione
+{
     private $cliente;
     private $operatore;
     private $dataprenotata;

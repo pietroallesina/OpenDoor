@@ -38,7 +38,7 @@ delimiter ;
 
 drop procedure if exists procedura_login_operatore;
 delimiter $$
-create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), out true_password varchar(255))
+create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), out true_password varchar(255), out isadmin boolean)
 	begin
 		-- controllo se l'operatore esiste già e se la password è corretta
 		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
@@ -47,6 +47,7 @@ create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varch
 
 		-- restituisco la password hashata dell'operatore
 		select Operatori.Password from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome into true_password;
+		select Operatori.Admin from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome into isadmin;
 	end
 $$
 delimiter ;

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once '../includes/init.php';
 
 if (!isset($_SESSION['operatore']) || !$_SESSION['operatore']->isAdmin()) {
     header("Location: home");
@@ -9,16 +9,19 @@ if (!isset($_SESSION['operatore']) || !$_SESSION['operatore']->isAdmin()) {
 
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Admin</title>
+<head>
+    <?php require_once '../includes/head.php'; ?>
+</head>
+
+<body>
+    <header>
         <?php require_once '../includes/header.php'; ?>
-    </head>
+    </header>
 
-    <body>
-        <?php require_once '../includes/navbar.php'; ?>
-
+    <main>
         <h1>Area Riservata</h1>
+        
         <p>Benvenuto, <?php echo $_SESSION['operatore']->nome(); ?>!</p>
-        <p><a href="logout">Logout</a></p>
-    </body>
+    </main>
+</body>
 </html>
