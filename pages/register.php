@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/init.php';
 
-function registrazione_operatore(string $cognome, string $nome, bool $is_admin, string $password, string &$msg): void
+function registrazione_operatore(string $cognome, string $nome, int $is_admin, string $password, string &$msg): void
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $cognome = $_POST['cognome'];
         $nome = $_POST['nome'];
         $password = $_POST['password'];
-        $is_admin = $_POST['isadmin'] ?? false;
+        $is_admin = $_POST['isadmin'] ?? 0;
         registrazione_operatore($cognome, $nome, $is_admin, $password, $msg);
     }
 }
@@ -79,7 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <br>
 
             <label for="isadmin"> Amministratore </label>
-            <input type="checkbox" id="isadmin" name="isadmin">
+            <input type="checkbox" id="isadmin" name="isadmin" value=1>
             <br>
 
             <input type="submit" value="Registrati">
@@ -89,7 +89,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <p> <?php echo $msg ?> </p>
         <?php endif; ?>
 
-        <p><a href="home">Torna alla home</a></p>
+        <p>
+            Sei già registrato?
+            <a href="login">Accedi</a>
+        </p>
     </main>
 
 </body>

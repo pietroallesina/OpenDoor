@@ -28,12 +28,12 @@
             <ul class="dropdown-menu">
                 <li><a href="dashboard">Dashboard</a></li>
                 
-                <?php if ($_SESSION['operatore']->isAdmin() || true) : ?>
+                <?php if ($_SESSION['operatore']->isAdmin()) : ?>
                 <li><a href="admin">Configurazione</a></li>
                 <?php endif; ?>
                 
                 <li><a href="profile">Profilo</a></li>
-                <li><a href="logout">Logout</a></li>
+                <li><a onclick="logout()">Logout</a></li>
             </ul>
         </li>
 
