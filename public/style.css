@@ -1,12 +1,112 @@
+/************/
+/* General */
+/************/
+
+:root {
+    --background-color: lightyellow;
+    --section-color: khaki;
+    --text-color: black;
+    --accent-color: red;
+}
+
 body {
-    background-color: lightblue;
-    color: black;
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    zoom: 1.0;
 }
 
-h1 {
-    text-align: center;
+main {
+    margin: 0 10rem;
 }
 
-p {
-    font-size: 1.5em;
+/*****************/
+/* Header Styles */
+/*****************/
+
+header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+    background-color: var(--section-color);
+}
+
+header img {
+    max-width: 4rem;
+    height: auto;
+    margin: 0.5rem 1.5rem 0.5rem 1.5rem;
+}
+
+header nav {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-grow: 1; /* Espande il nav su tutta la riga*/
+
+    margin-right: 2rem;
+}
+
+/*****************/
+/* Navbar Styles */
+/*****************/
+
+nav > ul {
+    display: flex;
+    list-style: none;
+    gap: 1rem;
+
+    font-size: larger;
+    padding: 0;
+}
+
+nav > ul.right-navbar {
+    margin-left: auto;
+}
+
+nav a {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+nav a:hover {
+    text-decoration: underline var(--accent-color) solid 2px;
+}
+
+/******************/
+/* Drop-down menu */
+/******************/
+
+.dropdown-toggle {
+    display: none;
+}
+
+.dropdown-text:hover {
+    cursor: pointer;
+    text-decoration: underline var(--accent-color) solid 2px;
+}
+
+.dropdown-menu {
+    list-style: none;
+    text-align: right;
+    padding: 0.8rem;
+
+    position: absolute;
+    right: 1rem;
+    background-color: var(--section-color);
+    border: 1px solid var(--accent-color);
+
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.2s ease;
+    z-index: 1000;
+}
+
+.dropdown-toggle:checked ~ .dropdown-menu {
+    transform: scaleY(1);
+}
+
+.dropdown-menu > li {
+    margin: 0.5rem;
 }

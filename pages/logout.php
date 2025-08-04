@@ -1,8 +1,44 @@
 <?php
-require_once '../includes/header.php';
+require_once '../includes/init.php';
 
-// Invalidate the session and redirect to home
+// Invalidate the session
 $_SESSION = array();
 session_destroy();
-header("Location: home");
-exit();
+
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+<?php require_once '../includes/head.php'; ?>
+<style>
+    main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        margin-top: 5rem;
+    }
+
+    p {
+        font-size: large;
+    }
+</style>
+</head>
+
+<body>
+    <main>
+        <h1>Logout</h1>
+        
+        <p>
+            Sei stato disconnesso con successo!
+        </p>
+        <p>
+            Torna alla
+            <a href="/" style="color: var(--accent-color); text-decoration: underline">
+                pagina principale
+            </a>
+        </p>
+    </main>
+</body>
+</html>
