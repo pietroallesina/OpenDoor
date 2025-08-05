@@ -1,10 +1,23 @@
 <?php
 require_once '../includes/init.php';
 
+// Debugging
+function print_mysql_enc($mysqli) {
+    $result = $mysqli->query("SHOW VARIABLES LIKE 'character_set%';");
+    while ($row = $result->fetch_assoc()) {
+        echo $row['Variable_name'] . ": " . $row['Value'] . "<br>";
+    }
+}
+
 function registrazione_operatore(string $cognome, string $nome, int $is_admin, string $password, string &$msg): void
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        
+        // Debugging
+        // $mysqli->set_charset("latin1");
+        // print_mysql_enc($mysqli);
+
         $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
         $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), $is_admin];
         $mysqli->execute_query($query, $params);
@@ -54,45 +67,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-
     <header>
         <?php require_once '../includes/header.php'; ?>
     </header>
 
     <main>
-        <h1>Registrazione Operatore</h1>
-        <form method="post" action="">
-            <label for="cognome">Cognome:</label>
-            <input type="text" id="cognome" name="cognome" required>
-            <br>
-            
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" required>
-            <br>
-            
-            <label for="password">Inserisci password:</label>
-            <input type="password" id="password" name="password" required>
-            <br>
-            
-            <label for="password-confirm">Conferma password:</label>
-            <input type="password" id="password-confirm" name="password-check" required>
-            <br>
+        <h1>Registrazione</h1>
 
-            <label for="isadmin"> Amministratore </label>
-            <input type="checkbox" id="isadmin" name="isadmin" value=1>
-            <br>
+        <section class="access-form">
+            <form method="post" action="" class="access-data">
+                <label for="cognome">Cognome:</label>
+                <input type="text" id="cognome" name="cognome" required>
+                <br>
 
-            <input type="submit" value="Registrati">
-        </form>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+                <br>
 
-        <?php if (isset($msg) && $msg != '') : ?>
-            <p> <?php echo $msg ?> </p>
-        <?php endif; ?>
+                <label for="password">Nuova password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
 
-        <p>
-            Sei già registrato?
-            <a href="login">Accedi</a>
-        </p>
+                <label for="password-confirm">Conferma password:</label>
+                <input type="password" id="password-confirm" name="password-check" required>
+                <br>
+
+                <div class="admin-selector">
+                <label for="isadmin"> Amministratore </label>
+                <input type="checkbox" id="isadmin" name="isadmin" value=1>
+                </div class="admin-selector">
+                <br>
+
+                <input type="submit" value="Registrati">
+            </form>
+
+            <?php if (isset($msg) && $msg != '') : ?>
+                <p class="access-msg"> <?php echo $msg ?> </p>
+            <?php endif; ?>
+
+            <p>
+                Sei già registrato?
+                <a href="login">Accedi</a>
+            </p>
+
+        </section>
     </main>
 
 </body>

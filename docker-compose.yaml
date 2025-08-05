@@ -12,7 +12,8 @@ services:
         RUN docker-php-ext-install mysqli
         CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/public"]
     volumes:
-      - ./:/var/www/ # consider setting as read-only in production
+      - ./:/var/www/:ro # source files
+      - ./config/:/var/www/config:rw # config files are editable
     ports:
       - "8000:8000"
     depends_on:
@@ -27,5 +28,6 @@ services:
       MYSQL_DATABASE: OpenDoor
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
     volumes:
-      - dbdata:/var/lib/mysql:rw # data
+      - dbdata:/var/lib/mysql:rw # database data (tables and config)
       - ./database/scripts/:/docker-entrypoint-initdb.d/:ro # sql scripts, executed in alphabetical order
+      - ./database/my.cnf:/etc/mysql/conf.d/my.cnf:ro # config for correct string encoding

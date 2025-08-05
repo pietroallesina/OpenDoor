@@ -68,30 +68,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <main>
         <h1>Login</h1>
-        <form method="post" action="">
-            <label for="cognome">Cognome:</label>
-            <input type="text" id="cognome" name="cognome" required>
-            <br>
-            
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" required>
-            <br>
-            
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <br>
-            
-            <input type="submit" value="Accedi">
-        </form>
 
-        <?php if (isset($msg) && $msg != '') : ?>
-            <p> <?php echo $msg ?> </p>
-        <?php endif; ?>
+        <section class="access-form">
+            <form method="post" action="" class="access-data">
+                <label for="cognome">Cognome:</label>
+                <input type="text" id="cognome" name="cognome" required>
+                <br>
 
-        <p>
-            Sei un nuovo operatore?
-            <a href="register">Registrati</a>
-        </p>
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" name="nome" required>
+                <br>
+
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+
+                <input type="submit" value="Accedi">
+            </form>
+
+            <?php if (isset($msg) && $msg != '') : ?>
+                <p class="access-msg"> <?php echo $msg ?> </p>
+            <?php endif; ?>
+
+            <p>
+                Sei un nuovo operatore?
+                <a href="register">Registrati</a>
+            </p>
+        </section>
+
     </main>
 
 </body>
