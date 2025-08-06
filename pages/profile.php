@@ -2,7 +2,7 @@
 require_once '../includes/init.php';
 
 if (!isset($_SESSION['operatore'])) {
-    header("Location: home");
+    header("Location: /home");
     exit();
 }
 ?>
@@ -14,9 +14,9 @@ if (!isset($_SESSION['operatore'])) {
 </head>
 
 <body>
-    <header>
+    <!-- <header> -->
         <?php require_once '../includes/header.php'; ?>
-    </header>
+    <!-- </header> -->
 
     <main>
         <h1>Il mio profilo</h1>

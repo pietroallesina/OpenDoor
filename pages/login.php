@@ -34,14 +34,14 @@ function login_operatore(string $cognome, string $nome, string $password, string
     require_once '../classes/Operatore.php';
     $operatore = new Operatore($cognome, $nome, $is_admin);
     $_SESSION['operatore'] = $operatore;
-    header("Location: dashboard");
+    header("Location: /dashboard");
     exit(); // always exit after a redirect
 }
 
 /*********************************************************/
 
 if (isset($_SESSION['operatore'])) {
-    header("Location: dashboard");
+    header("Location: /dashboard");
     exit(); // always exit after a redirect
 }
 
@@ -62,9 +62,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <header>
+    <!-- <header> -->
         <?php require_once '../includes/header.php'; ?>
-    </header>
+    <!-- </header> -->
 
     <main>
         <h1>Login</h1>
@@ -92,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <p>
                 Sei un nuovo operatore?
-                <a href="register">Registrati</a>
+                <a href="/register">Registrati</a>
             </p>
         </section>
 

@@ -38,7 +38,7 @@ require_once '../includes/init.php';
             <br>
             <br>
             Torna alla
-            <a href="/" style="color: var(--accent-color); text-decoration: underline">
+            <a href="/home" style="color: var(--accent-color); text-decoration: underline">
                 pagina principale
             </a>
         </p>

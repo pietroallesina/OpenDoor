@@ -22,7 +22,7 @@ function registrazione_operatore(string $cognome, string $nome, int $is_admin, s
         $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), $is_admin];
         $mysqli->execute_query($query, $params);
     } catch (Exception $e) {
-        $msg = "Errore durante la registrazione: " . $e->getMessage();
+        $msg = $e->getMessage();
         if (isset($mysqli)) {
             $mysqli->close();
         }
@@ -34,14 +34,14 @@ function registrazione_operatore(string $cognome, string $nome, int $is_admin, s
     require_once '../classes/Operatore.php';
     $operatore = new Operatore($cognome, $nome, $is_admin);
     $_SESSION['operatore'] = $operatore;
-    header("Location: dashboard");
+    header("Location: /dashboard");
     exit(); // always exit after a redirect
 }
 
 /*********************************************************/
 
 if (isset($_SESSION['operatore'])) {
-    header("Location: dashboard");
+    header("Location: /dashboard");
     exit(); // always exit after a redirect
 }
 
@@ -67,9 +67,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
-    <header>
+    <!-- <header> -->
         <?php require_once '../includes/header.php'; ?>
-    </header>
+    <!-- </header> -->
 
     <main>
         <h1>Registrazione</h1>
@@ -107,7 +107,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <p>
                 Sei già registrato?
-                <a href="login">Accedi</a>
+                <a href="/login">Accedi</a>
             </p>
 
         </section>
