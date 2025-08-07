@@ -1,0 +1,55 @@
+/***********/
+/* Global  */
+/***********/
+
+:root {
+    --background-color: lightyellow;
+    --text-color: black;
+    --link-color: brown;
+    --error-color: red;
+}
+
+body {
+    margin: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    zoom: 1.0;
+}
+
+main {
+    margin-top: 5vh;
+    margin-left: 10vw;
+    margin-right: 10vw;
+}
+
+main > h1 {
+    text-align: center;
+}
+
+a {
+    color: var(--link-color);
+    text-decoration: underline;
+}
+
+/****************************/
+/* Login/Registration forms */
+/****************************/
+
+.access-form {
+    margin-left: 10vw;
+    margin-right: 10vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.access-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.access-msg {
+    color: var(--error-color);
+}

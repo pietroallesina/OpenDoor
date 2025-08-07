@@ -9,6 +9,7 @@ session_destroy();
 
 <!DOCTYPE html>
 <html>
+
 <head>
 <?php require_once '../includes/head.php'; ?>
 <style>
@@ -19,7 +20,6 @@ session_destroy();
 
         margin-top: 5rem;
     }
-
     p {
         font-size: large;
     }
@@ -35,7 +35,7 @@ session_destroy();
         </p>
         <p>
             Torna alla
-            <a href="/home" style="color: var(--accent-color); text-decoration: underline">
+            <a href="/home">
                 pagina principale
             </a>
         </p>

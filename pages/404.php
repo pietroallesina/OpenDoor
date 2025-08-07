@@ -15,12 +15,10 @@ require_once '../includes/init.php';
 
         margin-top: 5rem;
     }
-
     img {
-        max-width: 10rem;
+        width: 10rem;
         height: auto;
     }
-
     p {
         font-size: large;
     }
@@ -38,7 +36,7 @@ require_once '../includes/init.php';
             <br>
             <br>
             Torna alla
-            <a href="/home" style="color: var(--accent-color); text-decoration: underline">
+            <a href="/home">
                 pagina principale
             </a>
         </p>

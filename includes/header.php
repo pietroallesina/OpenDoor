@@ -1,49 +1,45 @@
-<!-- <header> -->
+<header class="underline-animation">
 
 <!-- <a href="home"> -->
-<img src="/favicon.ico" alt="Logo Porta Aperta">
+<!-- <img src="/favicon.ico" alt="Logo Porta Aperta"> -->
 <!-- </a> -->
 
-<nav>
-    <ul class="left-navbar">
-        |
-        <li><a href="home">Home</a></li>
-        |
-        <li><a href="guide">Guida</a></li>
-        |
-        <li><a href="https://portaapertacarpi.com/" target="_blank">Porta Aperta↗️</a></li>
-    </ul class="left-navbar">
+<nav class="left-navbar">
 
-    <ul class="right-navbar">
-        
-        <?php if(isset($_SESSION['operatore'])) : ?>
-        <li>
-            <input id="dropdown-toggle-1" type="checkbox" class="dropdown-toggle">
-            <label for="dropdown-toggle-1" class="dropdown-text">
-                <!-- <a href="#" onclick="return false;"> -->
-                    <?php echo $_SESSION['operatore']->nome(); ?>
-                <!-- </a> -->
-            </label>
+<?php if(isset($_SESSION['operatore'])) : ?>
+    <a href="/dashboard" class="header-link">Dashboard</a></li>
 
-            <ul class="dropdown-menu">
-                <li><a href="dashboard">Dashboard</a></li>
-                
-                <?php if ($_SESSION['operatore']->isAdmin()) : ?>
-                <li><a href="admin">Configurazione</a></li>
-                <?php endif; ?>
-                
-                <li><a href="profile">Profilo</a></li>
-                <li><a onclick="logout()">Logout</a></li>
-            </ul>
-        </li>
+    <?php if ($_SESSION['operatore']->isAdmin()) : ?>
+    <a href="/admin" class="header-link">Configurazione</a>
+    <?php endif; ?>
 
-        <?php else : ?>
-        <li><a href="login">Accedi</a></li>
+<?php else : ?>
+    <a href="/home" class="header-link">Home</a>
 
-        <?php endif; ?>
+<?php endif; ?>
 
-    </ul class="right-navbar">
-</nav>
+    <a href="/guide" class="header-link">Guida</a>
 
-<!-- </header> -->
- 
+</nav class="left-navbar"> 
+
+
+<nav class="right-navbar">
+
+<?php if(isset($_SESSION['operatore'])) : ?>
+    <!-- <details class="user-menu"> -->
+        <!-- <summary class="header-link"> <?php echo $_SESSION['operatore']->nome();?> </summary> -->
+        <a href="/profile" class="header-link">Profilo</a>
+        <a onclick="logout()" class="header-link">Logout</a>
+    <!-- </details> -->
+
+    <!-- <a href="#" class="header-link">Due</a> -->
+    <!-- <a href="#" class="header-link">Tre</a> -->
+
+<?php else : ?>
+    <a href="/login" class="header-link">Accedi</a>
+
+<?php endif; ?>
+
+</nav class="right-navbar">
+
+</header>
