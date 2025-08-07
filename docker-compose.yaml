@@ -7,12 +7,15 @@ services:
   php:
     image: opendoor-php
     build:
-      dockerfile_inline: |
-        FROM php:8.4
-        RUN docker-php-ext-install mysqli
-        CMD ["php", "-S", "0.0.0.0:8000", "-t", "/var/www/public"]
+      context: .
+      dockerfile: php.Dockerfile
+
+    # Split mounts to prevent hiding of preexisting ./vendor/ in image
     volumes:
-      - ./:/var/www/:ro # source files
+      - ./public:/var/www/public:ro # source files
+      - ./pages:/var/www/pages:ro # source files
+      - ./classes:/var/www/classes:ro # source files
+      - ./includes:/var/www/includes:ro # source files
       - ./config/:/var/www/config:rw # config files are editable
     ports:
       - "8000:8000"
@@ -23,7 +26,7 @@ services:
     image: opendoor-mysql
     build:
       dockerfile_inline: |
-        FROM mysql:9.2
+        FROM mysql:8.4
     environment:
       MYSQL_DATABASE: OpenDoor
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
