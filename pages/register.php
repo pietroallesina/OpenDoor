@@ -76,12 +76,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <section class="access-form">
             <form method="post" action="" class="access-data">
-                <label for="cognome">Cognome:</label>
-                <input type="text" id="cognome" name="cognome" required>
-                <br>
-
                 <label for="nome">Nome:</label>
                 <input type="text" id="nome" name="nome" required>
+                <br>
+
+                <label for="cognome">Cognome:</label>
+                <input type="text" id="cognome" name="cognome" required>
                 <br>
 
                 <label for="password">Nuova password:</label>
