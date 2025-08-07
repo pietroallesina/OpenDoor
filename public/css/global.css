@@ -9,18 +9,23 @@
     --error-color: red;
 }
 
-body {
+html, body {
     margin: 0;
+    width: 100%;
+    height: auto;
+}
+
+body {
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: Arial, sans-serif;
-    zoom: 1.0;
 }
 
 main {
     margin-top: 5vh;
     margin-left: 10vw;
     margin-right: 10vw;
+    height: 100%;
 }
 
 main > h1 {

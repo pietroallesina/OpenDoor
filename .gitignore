@@ -2,3 +2,4 @@ database/testing
 *.swp
 *.txt
 *.sh
+private/
