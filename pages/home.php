@@ -1,6 +1,6 @@
 <?php
 // Set $head_title for custom page title
-require_once '../includes/init.php';
+require_once __DIR__ . '/../includes/init.php';
 
 if (isset($_SESSION['operatore'])) {
     header("Location: /dashboard");
@@ -11,12 +11,12 @@ if (isset($_SESSION['operatore'])) {
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <?php require_once '../includes/head.php'; ?>
+    <?php require_once __DIR__ . '/../includes/head.php'; ?>
 </head>
 
 <body>
     <!-- <header> -->
-        <?php require_once '../includes/header.php'; ?>
+        <?php require_once __DIR__ . '/../includes/header.php'; ?>
     <!-- </header> -->
 
     <main>

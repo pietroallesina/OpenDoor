@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/init.php';
+require_once __DIR__ . '/../includes/init.php';
 
 function login_operatore(string $cognome, string $nome, string $password, string &$msg): void
 {
@@ -31,7 +31,6 @@ function login_operatore(string $cognome, string $nome, string $password, string
         return;
     }
 
-    require_once '../classes/Operatore.php';
     $operatore = new Operatore($cognome, $nome, $is_admin);
     $_SESSION['operatore'] = $operatore;
     header("Location: /dashboard");
@@ -58,16 +57,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html>
 
 <head>
-    <?php require_once '../includes/head.php'; ?>
+    <?php require_once __DIR__ . '/../includes/head.php'; ?>
 </head>
 
 <body>
     <!-- <header> -->
-        <?php require_once '../includes/header.php'; ?>
+        <?php require_once __DIR__ . '/../includes/header.php'; ?>
     <!-- </header> -->
 
     <main>
-        <h1>Login</h1>
+        <h1>Accesso</h1>
 
         <section class="access-form">
             <form method="post" action="" class="access-data">

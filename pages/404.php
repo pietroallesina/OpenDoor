@@ -1,12 +1,12 @@
 <?php
-require_once '../includes/init.php';
+require_once __DIR__ . '/../includes/init.php';
 ?>
 
 <!DOCTYPE html>
 <html>
 
 <head>
-<?php require_once '../includes/head.php'; ?>
+<?php require_once __DIR__ . '/../includes/head.php'; ?>
 <style>
     main {
         display: flex;

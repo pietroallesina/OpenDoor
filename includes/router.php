@@ -25,4 +25,4 @@ if (file_exists($pagesDir . $page . '.php')) {
     http_response_code(404);
     require_once $pagesDir . '404.php';
 }
-exit;
+exit();

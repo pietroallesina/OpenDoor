@@ -7,10 +7,10 @@
 <nav class="left-navbar">
 
 <?php if(isset($_SESSION['operatore'])) : ?>
-    <a href="/dashboard" class="header-link">Dashboard</a></li>
+    <a href="/dashboard" class="header-link">Pannello di controllo</a></li>
 
     <?php if ($_SESSION['operatore']->isAdmin()) : ?>
-    <a href="/admin" class="header-link">Configurazione</a>
+    <a href="/admin" class="header-link">Area riservata</a>
     <?php endif; ?>
 
 <?php else : ?>
@@ -29,7 +29,7 @@
     <!-- <details class="user-menu"> -->
         <!-- <summary class="header-link"> <?php echo $_SESSION['operatore']->nome();?> </summary> -->
         <a href="/profile" class="header-link">Profilo</a>
-        <a onclick="logout()" class="header-link">Logout</a>
+        <a onclick="logout()" class="header-link">Esci</a>
     <!-- </details> -->
 
     <!-- <a href="#" class="header-link">Due</a> -->
