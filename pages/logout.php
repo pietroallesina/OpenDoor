@@ -23,6 +23,9 @@ session_destroy();
     p {
         font-size: large;
     }
+    a {
+        color: var(--link-color);
+    }
 </style>
 </head>
 

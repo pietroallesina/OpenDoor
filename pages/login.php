@@ -58,6 +58,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <?php require_once __DIR__ . '/../includes/head.php'; ?>
+    <link rel="stylesheet" href="/css/forms.css" type="text/css">
+
 </head>
 
 <body>
