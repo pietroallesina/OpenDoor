@@ -26,14 +26,7 @@
 <nav class="right-navbar">
 
 <?php if(isset($_SESSION['operatore'])) : ?>
-    <!-- <details class="user-menu"> -->
-        <!-- <summary class="header-link"> <?php echo $_SESSION['operatore']->nome();?> </summary> -->
-        <a href="/profile" class="header-link">Profilo</a>
-        <a onclick="logout()" class="header-link">Esci</a>
-    <!-- </details> -->
-
-    <!-- <a href="#" class="header-link">Due</a> -->
-    <!-- <a href="#" class="header-link">Tre</a> -->
+    <a onclick="logout()" class="header-link">Esci</a>
 
 <?php else : ?>
     <a href="/login" class="header-link">Accedi</a>

@@ -14,7 +14,7 @@ if (!isset($_SESSION['operatore'])) {
     <link rel="stylesheet" href="/css/dashboard.css" type="text/css">
 
     <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
     <script src="/js/calendar.js"></script>
 
 </head>
@@ -25,7 +25,11 @@ if (!isset($_SESSION['operatore'])) {
     <!-- </header> -->
 
     <main>
-        <h1>Pannello di controllo</h1>
+
+        <div class="action-menu">
+            <a class="action-button" onClick="window.open('/newclient', 'Nuovo utente', 'width=800,height=800');" > Nuovo utente </a>
+            <a class="action-button" onClick="window.open('/newdate', 'Nuova prenotazione', 'width=800,height=800');" > Nuova prenotazione </a>
+        </div>
 
         <div id="calendar"></div>
 

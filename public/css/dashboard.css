@@ -1,5 +1,41 @@
-iframe.calendar {
-    width: 100%;
-    height: 60vh;
-    border: 0;
+main {
+    display: grid;
+    /* gap: 2rem; */
+    grid-template-areas: "sidebar main";
+    grid-template-columns: 1fr 4fr;
+}
+
+main h1 {
+    margin-right: auto;
+}
+
+.action-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: start;
+}
+
+.action-button {
+    margin-right: 6vw;
+    margin-bottom: 2rem;
+
+    text-align: center;
+    text-decoration: none;
+    color: white;
+
+    padding: 0.8rem;
+    background-color: var(--link-color);
+    border-style: 1;
+    border-radius: 0.5rem;
+
+    align-self: stretch;
+}
+
+.action-button:hover {
+    cursor: pointer;
+}
+
+#calendar {
+    height: 80vh;
 }
