@@ -10,30 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
         slotMinTime: "07:00:00", // starting time
         nowIndicator: true,
 
-        events: async function(fetchInfo, successCallback, failureCallback) {
-            try {
-                const response = await fetch('/api/calendar.php');
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-
-                // Map API events to FullCalendar event format
-                const events = data.map(event => ({
-                    title: event.summary,
-                    start: event.start,
-                    // url: event.htmlLink,
-                    allDay: !event.start.includes('T')  // crude check for all-day events
-                }));
-
-                successCallback(events);
-
-            } catch (error) {
-                failureCallback(error);
-            }
-        },
+        events: '/api/calendar.php',
 
         eventClick: function(info) {
             info.jsEvent.preventDefault(); // prevent default browser navigation

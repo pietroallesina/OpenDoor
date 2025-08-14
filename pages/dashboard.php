@@ -28,7 +28,8 @@ if (!isset($_SESSION['operatore'])) {
 
         <div class="action-menu">
             <a class="action-button" onClick="window.open('/newclient', 'Nuovo utente', 'width=800,height=800');" > Nuovo utente </a>
-            <a class="action-button" onClick="window.open('/newdate', 'Nuova prenotazione', 'width=800,height=800');" > Nuova prenotazione </a>
+            <a class="action-button" onClick="window.open('/newdate', 'Nuova prenotazione', 'width=1000,height=500');" > Nuova prenotazione </a>
+            <a class="action-button" onClick="window.open('/newaccess', 'Nuova prenotazione', 'width=1000,height=500');" > Nuovo accesso </a>
         </div>
 
         <div id="calendar"></div>

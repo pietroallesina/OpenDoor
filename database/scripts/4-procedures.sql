@@ -202,6 +202,15 @@ create procedure procedura_annullamento_prenotazione(in ID int unsigned)
 $$
 delimiter ;
 
+drop procedure if exists procedura_restituisci_eventi;
+delimiter $$
+create procedure procedura_restituisci_eventi(in DataInizio date, in DataFine date)
+	begin
+		select * from Prenotazioni where DataPrenotata between DataInizio and DataFine;
+	end
+$$
+delimiter ;
+
 -- trasformo prenotazione in accesso -> aggiorno Cliente
 drop procedure if exists procedura_inserimento_accesso;
 delimiter $$
