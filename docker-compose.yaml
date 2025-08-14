@@ -13,10 +13,9 @@ services:
     # Split mounts to prevent hiding of preexisting ./vendor/ in image
     volumes:
       - ./public:/var/www/public:ro # source files
-      - ./pages:/var/www/pages:ro # source files
-      - ./classes:/var/www/classes:ro # source files
-      - ./includes:/var/www/includes:ro # source files
-      - ./private:/var/www/private:ro # source files
+      - ./pages:/var/www/pages:ro
+      - ./classes:/var/www/classes:ro
+      - ./includes:/var/www/includes:ro
       - ./config/:/var/www/config:rw # config files are editable
     ports:
       - "8000:8000"
