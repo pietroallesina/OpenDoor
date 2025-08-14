@@ -15,6 +15,11 @@ create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome
 			Operatori(Cognome, Nome, Password, Admin)
             values(Cognome, Nome, Password, Admin)
 		;
+
+		select ID from Operatori where
+			Operatori.Cognome = Cognome
+			and Operatori.Nome = Nome
+		;
     end
 $$
 delimiter ;
@@ -38,7 +43,7 @@ delimiter ;
 
 drop procedure if exists procedura_login_operatore;
 delimiter $$
-create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64), out true_password varchar(255), out isadmin boolean)
+create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varchar(64))
 	begin
 		-- controllo se l'operatore esiste già e se la password è corretta
 		if not exists(select * from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome)
@@ -46,8 +51,7 @@ create procedure procedura_login_operatore(in Cognome varchar(64), in Nome varch
 		end if;
 
 		-- restituisco la password hashata dell'operatore
-		select Operatori.Password from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome into true_password;
-		select Operatori.Admin from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome into isadmin;
+		select Password, ID, Admin from Operatori where Operatori.Cognome = Cognome and Operatori.Nome = Nome;
 	end
 $$
 delimiter ;
@@ -103,14 +107,24 @@ create procedure procedura_eliminazione_cliente(in ID smallint unsigned)
 $$
 delimiter ;
 
+drop procedure if exists procedura_restituisci_dati_cliente;
+delimiter $$
+create procedure procedura_restituisci_dati_cliente(in Cognome varchar(64), in Nome varchar(64))
+	begin
+		select ID, Regione, NumeroFamigliari, AccessiDisponibili, CreditiDisponibili from Clienti where Clienti.Cognome = Cognome and Clienti.Nome = Nome;
+	end
+$$
+delimiter ;
+
+-- Controllo disponibilità fascia oraria e crediti giornalieri
 drop procedure if exists procedura_inserimento_prenotazione;
 delimiter $$
-create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned, in Operatore smallint unsigned, in DataPrenotata date, in CreditiSpesi tinyint unsigned)
+create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned, in Operatore smallint unsigned, in DataPrenotata date, in Crediti tinyint unsigned)
 	begin
 		if (select Clienti.AccessiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) = 0
 			then SIGNAL sqlstate '45000' SET message_text = 'Il cliente ha esaurito gli accessi';
 
-		elseif (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < CreditiSpesi
+		elseif (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < Crediti
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
 
 		end if;
@@ -118,13 +132,13 @@ create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned
 		update Clienti
 			set
 				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili - 1
-				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - CreditiSpesi
+				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - Crediti
 			where Clienti.ID = Cliente
 		;
 
 		insert into
-			Prenotazioni(Cliente, Operatore, DataPrenotata, CreditiSpesi)
-            values(Cliente, Operatore, DataPrenotata, CreditiSpesi)
+			Prenotazioni(Cliente, Operatore, DataPrenotata, Crediti)
+            values(Cliente, Operatore, DataPrenotata, Crediti)
 		;
     end
 $$
@@ -132,10 +146,10 @@ delimiter ;
 
 drop procedure if exists procedura_aggiornamento_prenotazione;
 delimiter $$
-create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotata date, in CreditiSpesi tinyint unsigned)
+create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotata date, in Crediti tinyint unsigned)
 	begin
 		declare Cliente smallint unsigned;
-		declare old_CreditiSpesi tinyint unsigned;
+		declare old_Crediti tinyint unsigned;
         
 		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
@@ -146,19 +160,19 @@ create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotat
 			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione non trovata';
 		end if;
 
-		set old_CreditiSpesi = (select Prenotazioni.CreditiSpesi from Prenotazioni where Prenotazioni.ID = ID);
+		set old_Crediti = (select Prenotazioni.Crediti from Prenotazioni where Prenotazioni.ID = ID);
 
-		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = Cliente) + old_CreditiSpesi < CreditiSpesi
+		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = Cliente) + old_Crediti < Crediti
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
 		end if;
 
 		update Prenotazioni
-			set Prenotazioni.DataPrenotata = DataPrenotata, Prenotazioni.CreditiSpesi = CreditiSpesi
+			set Prenotazioni.DataPrenotata = DataPrenotata, Prenotazioni.Crediti = Crediti
 			where Prenotazioni.ID = ID
 		;
 		update Clienti
 			set
-				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + old_CreditiSpesi - CreditiSpesi
+				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + old_Crediti - Crediti
 			where Clienti.ID = Cliente
 		;
     end
@@ -176,7 +190,7 @@ create procedure procedura_annullamento_prenotazione(in ID int unsigned)
 		update Clienti
 			set
 				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili + 1
-				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + (select Prenotazioni.CreditiSpesi from Prenotazioni where Prenotazioni.ID = ID)
+				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + (select Prenotazioni.Crediti from Prenotazioni where Prenotazioni.ID = ID)
 			where Clienti.ID = (SELECT Cliente from Prenotazioni where Prenotazioni.ID = ID)
 		;
 

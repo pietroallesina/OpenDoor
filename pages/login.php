@@ -5,15 +5,15 @@ function login_operatore(string $cognome, string $nome, string $password, string
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        $query = "CALL procedura_login_operatore(?, ?, @true_password, @isadmin)";
+        $query = "CALL procedura_login_operatore(?, ?)";
         $params = [$cognome, $nome];
-        $mysqli->execute_query($query, $params);
+        
+        $result = $mysqli->execute_query($query, $params);
 
-        $result = $mysqli->query("SELECT @true_password AS password");
-        $true_password = $result->fetch_assoc()['password'];
-
-        $result = $mysqli->query('SELECT @isadmin AS isadmin');
-        $is_admin = $result->fetch_assoc()['isadmin'];
+        $row = $result->fetch_assoc();
+        $ID = $row["ID"];
+        $true_password = $row['Password'];
+        $is_admin = $row['Admin'];
 
     } catch (Exception $e) {
         $msg = "Errore durante il login: " . $e->getMessage();
@@ -31,7 +31,7 @@ function login_operatore(string $cognome, string $nome, string $password, string
         return;
     }
 
-    $operatore = new Operatore($cognome, $nome, $is_admin);
+    $operatore = new Operatore($ID, $cognome, $nome, $is_admin);
     $_SESSION['operatore'] = $operatore;
     header("Location: /dashboard");
     exit(); // always exit after a redirect

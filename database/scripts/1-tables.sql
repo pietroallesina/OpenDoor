@@ -33,7 +33,7 @@ create table if not exists Prenotazioni (
     , Operatore smallint unsigned NULL
 	, DataPrenotata date NOT NULL
 	, OrarioAccesso time NULL DEFAULT NULL
-	, CreditiSpesi tinyint unsigned NOT NULL
+	, Crediti tinyint unsigned NOT NULL
 	, Stato enum('PRENOTATA', 'COMPLETATA', 'ANNULLATA', 'INATTESA') NOT NULL DEFAULT 'PRENOTATA'
 	, ID int unsigned NOT NULL AUTO_INCREMENT
 	, primary key (ID)

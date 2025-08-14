@@ -20,7 +20,9 @@ function registrazione_operatore(string $cognome, string $nome, int $is_admin, s
 
         $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
         $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), $is_admin];
-        $mysqli->execute_query($query, $params);
+        $result = $mysqli->execute_query($query, $params);
+        $ID = $result->fetch_row()['ID'];
+
     } catch (Exception $e) {
         $msg = $e->getMessage();
         if (isset($mysqli)) {
@@ -30,8 +32,7 @@ function registrazione_operatore(string $cognome, string $nome, int $is_admin, s
     }
 
     $mysqli->close();
-
-    $operatore = new Operatore($cognome, $nome, $is_admin);
+    $operatore = new Operatore($ID, $cognome, $nome, $is_admin);
     $_SESSION['operatore'] = $operatore;
     header("Location: /dashboard");
     exit(); // always exit after a redirect
