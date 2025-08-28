@@ -2,34 +2,51 @@ use OpenDoor;
 
 -- SEZIONE STORED FUNCTIONS --
 
+drop function if exists calcola_accessi_disponibili;
+DELIMITER $$
+CREATE FUNCTION calcola_accessi_disponibili (NumeroFamigliari TINYINT UNSIGNED) RETURNS TINYINT UNSIGNED DETERMINISTIC
+	BEGIN
+	    DECLARE valore TINYINT UNSIGNED;
+
+	    SELECT CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, CONCAT('$.accessi_mensili.', k))
+	        ) AS UNSIGNED
+	    )
+	    INTO valore
+	    FROM (
+	        SELECT JSON_UNQUOTE(jt.key) AS k
+	        FROM Impostazioni,
+	             JSON_TABLE(
+	                 JSON_KEYS(Parametri, '$.accessi_mensili'),
+	                 '$[*]' COLUMNS(key VARCHAR(10) PATH '$')
+	             ) AS jt
+	        WHERE id = 1
+	          AND CAST(jt.key AS UNSIGNED) <= NumeroFamigliari
+	        ORDER BY CAST(jt.key AS UNSIGNED) DESC
+	        LIMIT 1
+	    ) AS sub;
+
+	    RETURN valore;
+	END
+$$
+DELIMITER ;
+
+
 drop function if exists calcola_crediti_disponibili;
 delimiter $$
 create function calcola_crediti_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned deterministic
 	begin
-		return (
-			case NumeroFamigliari
-				when 1 then 40
-				when 2 then 60
-				when 3 then 75
-				when 4 then 90
-				when 5 then 105
-				else 120
-			end
-        );
-	end
-$$
-delimiter ;
+		declare crediti tinyint unsigned;
 
-drop function if exists calcola_accessi_disponibili;
-delimiter $$
-create function calcola_accessi_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned deterministic
-	begin
-		return (
-			case
-				when NumeroFamigliari <= 3 then 2
-				else 3
-			end
-        );
+		select cast(json_unquote(
+			json_extract(Parametri, CONCAT('$.crediti_accesso.', NumeroFamigliari)))
+			as tinyint unsigned)
+		into crediti
+		from Impostazioni
+		where id = 1;
+
+		return crediti;
 	end
 $$
 delimiter ;

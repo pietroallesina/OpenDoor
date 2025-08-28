@@ -2,6 +2,21 @@ use OpenDoor;
 
 -- SEZIONE STORED PROCEDURES --
 
+drop procedure if exists procedura_aggiornamento_impostazioni;
+delimiter $$
+create procedure procedura_aggiornamento_impostazioni(in parametro varchar(255), in valore json)
+	begin
+		update Impostazioni
+		set Parametri = json_replace(
+			Parametri,
+			concat('$.', parametro),
+			valore
+		)
+		where id = 1
+	end
+$$
+delimiter ;
+
 drop procedure if exists procedura_inserimento_operatore;
 delimiter $$
 create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome varchar(64), in Password varchar(255), in Admin boolean)

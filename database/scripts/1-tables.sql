@@ -3,6 +3,32 @@ set foreign_key_checks = 0;
 
 -- SEZIONE TABELLE --
 
+drop table if exists Impostazioni;
+create table if not exists Impostazioni (
+	id INT PRIMARY KEY CHECK (id = 1), -- ensures only one row
+	Parametri JSON
+);
+
+INSERT INTO Impostazioni (id, Parametri) VALUES (
+    1,
+    '{
+        "accessi_mensili": {
+			"1": 2,
+			"4": 3,
+		},
+		"crediti_accesso": {
+			"1": 20,
+			"2": 30,
+			"3": 38,
+			"4": 30,
+			"5": 35,
+			"6": 40
+		},
+		"limite_accessi": 20,
+		"limite_crediti": 600
+    }'
+);
+
 drop table if exists Operatori;
 create table if not exists Operatori (
 	Cognome varchar(64) NOT NULL
