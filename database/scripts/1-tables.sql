@@ -1,3 +1,4 @@
+create database if not exists OpenDoor;
 use OpenDoor;
 set foreign_key_checks = 0;
 
@@ -14,7 +15,7 @@ INSERT INTO Impostazioni (id, Parametri) VALUES (
     '{
         "accessi_mensili": {
 			"1": 2,
-			"4": 3,
+			"4": 3
 		},
 		"crediti_accesso": {
 			"1": 20,

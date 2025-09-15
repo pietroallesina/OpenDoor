@@ -4,9 +4,10 @@ require_once __DIR__ . '/../classes/Cliente.php';
 require_once __DIR__ . '/../classes/Prenotazione.php';
 
 function trova_clienti(string $cognome, string $nome, string &$msg) { // restituisce array di oggetti Cliente
+    global $db_user, $db_password;
     $clienti = [];
     try {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
         $query = "CALL procedura_restituisci_dati_cliente(?, ?)";
         $params = [$cognome, $nome];
 

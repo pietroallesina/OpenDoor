@@ -10,7 +10,7 @@ services:
       context: .
       dockerfile: php.Dockerfile
 
-    # Split mounts to prevent hiding of preexisting ./vendor/ in image
+    # Split mounts to separate read-only and read-write
     volumes:
       - ./public:/var/www/public:ro # source files
       - ./pages:/var/www/pages:ro

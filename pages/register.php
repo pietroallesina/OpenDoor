@@ -11,17 +11,21 @@ function print_mysql_enc($mysqli) {
 
 function registrazione_operatore(string $cognome, string $nome, int $is_admin, string $password, string &$msg): void
 {
+    global $db_user, $db_password;
     try {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
-        
+        $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
+
         // Debugging
         // $mysqli->set_charset("latin1");
         // print_mysql_enc($mysqli);
 
         $query = "CALL procedura_inserimento_operatore(?, ?, ?, ?)";
         $params = [$cognome, $nome, password_hash($password, PASSWORD_DEFAULT), $is_admin];
+
         $result = $mysqli->execute_query($query, $params);
-        $ID = $result->fetch_row()['ID'];
+
+        $row = $result->fetch_assoc();
+        $ID = $row["ID"];
 
     } catch (Exception $e) {
         $msg = $e->getMessage();

@@ -22,9 +22,6 @@ require_once __DIR__ . '/../includes/init.php';
     p {
         font-size: large;
     }
-    a {
-        color: var(--link-color);
-    }
 </style>
 </head>
 

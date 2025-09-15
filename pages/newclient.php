@@ -3,8 +3,9 @@ require_once __DIR__ . '/../includes/init.php';
 
 function registrazione_cliente(string $cognome, string $nome, string $regione, int $famigliari, string &$msg): void
 {
+    global $db_user, $db_password;
     try {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
 
         $query = "CALL procedura_inserimento_cliente(?, ?, ?, ?)";
         $params = [$cognome, $nome, $regione, $famigliari];

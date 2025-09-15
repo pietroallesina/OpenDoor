@@ -7,12 +7,13 @@ delimiter $$
 create procedure procedura_aggiornamento_impostazioni(in parametro varchar(255), in valore json)
 	begin
 		update Impostazioni
-		set Parametri = json_replace(
-			Parametri,
-			concat('$.', parametro),
-			valore
-		)
-		where id = 1
+			set Parametri = json_replace(
+				Parametri,
+				concat('$.', parametro),
+				valore
+			)
+			where id = 1
+		;
 	end
 $$
 delimiter ;
@@ -30,7 +31,7 @@ create procedure procedura_inserimento_operatore(in Cognome varchar(64), in Nome
 			Operatori(Cognome, Nome, Password, Admin)
             values(Cognome, Nome, Password, Admin)
 		;
-
+		-- restituisco l'ID dell'operatore appena inserito
 		select ID from Operatori where
 			Operatori.Cognome = Cognome
 			and Operatori.Nome = Nome

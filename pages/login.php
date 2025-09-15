@@ -3,8 +3,9 @@ require_once __DIR__ . '/../includes/init.php';
 
 function login_operatore(string $cognome, string $nome, string $password, string &$msg): void
 {
+    global $db_user, $db_password;
     try {
-        $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
+        $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
         $query = "CALL procedura_login_operatore(?, ?)";
         $params = [$cognome, $nome];
         

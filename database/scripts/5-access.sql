@@ -1,1 +1,5 @@
--- Empty
+CREATE USER IF NOT EXISTS 'access'@'%' IDENTIFIED BY 'portaaperta2026';
+
+GRANT EXECUTE ON OpenDoor.* TO 'access'@'%';
+
+FLUSH PRIVILEGES;
