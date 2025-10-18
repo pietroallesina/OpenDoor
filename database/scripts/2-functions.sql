@@ -8,24 +8,20 @@ CREATE FUNCTION calcola_accessi_disponibili (NumeroFamigliari TINYINT UNSIGNED) 
 	BEGIN
 	    DECLARE valore TINYINT UNSIGNED;
 
-	    SELECT CAST(
-	        JSON_UNQUOTE(
-	            JSON_EXTRACT(Parametri, CONCAT('$.accessi_mensili.', jkey))
-	        ) AS UNSIGNED
-	    )
-	    INTO valore
-	    FROM (
-	        SELECT JSON_UNQUOTE(jt.jkey) AS jkey
-	        FROM Impostazioni,
-	             JSON_TABLE(
-	                 JSON_KEYS(Parametri, '$.accessi_mensili'),
-	                 '$[*]' COLUMNS(jkey VARCHAR(10) PATH '$')
-	             ) AS jt
-	        WHERE id = 1
-	          AND CAST(jt.jkey AS UNSIGNED) <= NumeroFamigliari
-	        ORDER BY CAST(jt.jkey AS UNSIGNED) DESC
-	        LIMIT 1
-	    ) AS sub;
+	    SELECT JSON_EXTRACT(Impostazioni.Parametri, CONCAT('$.accessi_mensili."', (
+			SELECT jt.jkey
+			FROM Impostazioni,
+				JSON_TABLE(
+					JSON_KEYS(Parametri, '$.accessi_mensili'),
+					'$[*]' COLUMNS(jkey VARCHAR(10) PATH '$')
+				) AS jt
+			WHERE id = 1 AND jt.jkey <= NumeroFamigliari
+			ORDER BY jt.jkey DESC
+			LIMIT 1
+        ), '"'))
+		INTO valore
+		FROM Impostazioni
+		WHERE id = 1;
 
 	    RETURN valore;
 	END
@@ -36,17 +32,66 @@ DELIMITER ;
 drop function if exists calcola_crediti_disponibili;
 delimiter $$
 create function calcola_crediti_disponibili (NumeroFamigliari tinyint unsigned) returns tinyint unsigned deterministic
+	BEGIN
+	    DECLARE valore TINYINT UNSIGNED;
+
+	    SELECT JSON_EXTRACT(Impostazioni.Parametri, CONCAT('$.crediti_accesso."', (
+			SELECT jt.jkey
+			FROM Impostazioni,
+				JSON_TABLE(
+					JSON_KEYS(Parametri, '$.crediti_accesso'),
+					'$[*]' COLUMNS(jkey VARCHAR(10) PATH '$')
+				) AS jt
+			WHERE id = 1 AND jt.jkey <= NumeroFamigliari
+			ORDER BY jt.jkey DESC
+			LIMIT 1
+        ), '"'))
+		INTO valore
+		FROM Impostazioni
+		WHERE id = 1;
+
+	    RETURN valore;
+	END
+$$
+delimiter ;
+
+
+drop function if exists limite_accessi;
+delimiter $$
+create function limite_accessi () returns tinyint unsigned deterministic
 	begin
-		declare crediti tinyint unsigned;
+		declare limite tinyint unsigned;
 
-		select cast(json_unquote(
-			json_extract(Parametri, CONCAT('$.crediti_accesso.', NumeroFamigliari)))
-			as unsigned)
-		into crediti
+		select CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, '$.limite_accessi')
+	        ) AS UNSIGNED
+	    )
+	    into limite
 		from Impostazioni
-		where id = 1;
+	    where id = 1;
 
-		return crediti;
+	    return limite;
+	end
+$$
+delimiter ;
+
+drop function if exists limite_crediti;
+delimiter $$
+create function limite_crediti () returns smallint unsigned deterministic
+	begin
+		declare limite smallint unsigned;
+
+		select CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, '$.limite_crediti')
+	        ) AS UNSIGNED
+	    )
+	    into limite
+		from Impostazioni
+	    where id = 1;
+
+	    return limite;
 	end
 $$
 delimiter ;
