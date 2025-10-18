@@ -14,7 +14,7 @@ OpenDoor è un'applicazione web per la gestione delle attività dell'associazion
 
 1. Clona la repo:
     ```
-    git clone https://github.com/yourusername/OpenDoor.git
+    git clone https://github.com/pietroallesina/OpenDoor.git
     ```
 2. Installa Docker CLI (o Docker Desktop):
     ```
