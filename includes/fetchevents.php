@@ -1,6 +1,8 @@
 <?php
+require_once __DIR__ . '/init.php';
 
-function fetchEventsByDate($start, $end) {
+function fetchEventsByDate($start, $end)
+{
     global $db_user, $db_password;
     try {
         $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
@@ -24,12 +26,14 @@ function fetchEventsByDate($start, $end) {
 
     $events = [];
     while ($row = $result->fetch_assoc()) {
-        $allDay = ($row["Stato"]=='PRENOTATA');
 
         $events[] = [
-            "title" => $row["Cliente"],
-            "allDay" => $allDay,
-            "start" => $row["DataPrenotata"],
+            "title" => $row["nome"] . " " . $row["cognome"],
+            "allDay" => true,
+            "start" => $row["data"],
+            "extendedProps" => [
+                "id" => $row["id"]
+            ]
         ];
     }
 

@@ -27,16 +27,18 @@ function trova_clienti(string $cognome, string $nome, string &$msg) { // restitu
     }
 
     $mysqli->close();
-    $msg = 'Clienti trovati';
+    $msg = 'Utenti trovati';
     return $clienti;
 }
 
-function inserisci_prenotazione(int $IDcliente, string $data, int $crediti, int $limite, string &$msg): void
+function inserisci_prenotazione(int $IDcliente, string $data, string $orario, int $crediti, string &$msg): void
 {
     try {
         $mysqli = new mysqli("mysql", "root", "", "OpenDoor");
 
         $query = "CALL procedura_inserimento_prenotazione(?, ?, ?, ?)";
+
+        // Eventuale passaggio dell'argomento orario
         $params = [$IDcliente, $_SESSION['operatore']->ID(), $data, $crediti];
 
         $mysqli->execute_query($query, $params);
@@ -69,8 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // return;
     }
     if (isset($_POST["prenota"])) {
-        $limite = 100; // dummy value
-        inserisci_prenotazione($_POST["IDcliente"], $_POST["giorno"], $_POST["crediti"], $limite, $msg);
+        inserisci_prenotazione($_POST["IDcliente"], $_POST["giorno"], $_POST["orario"], $_POST["crediti"], $msg);
     }
 }
 ?>
@@ -117,15 +118,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="date" id="giorno" name="giorno" required>
                 <br>
 
-                <!-- [LATER] Orario -->
+                <!-- [WIP] Orario -->
+                <label for="orario"> Orario: </label>
+                <select id="orario" name="orario" required></select>
+                <script>
+                    const select = document.getElementById('orario');
+
+                    // Define range and interval
+                    const startHour = 9;
+                    const endHour = 20;
+                    const interval = 15;
+
+                    for (let hour = startHour; hour <= endHour; hour++) {
+                      for (let minutes = 0; minutes < 60; minutes += interval) {
+                        // Stop if beyond endHour and minutes > 0
+                        if (hour === endHour && minutes > 0) break;
+                    
+                        const h = String(hour).padStart(2, '0');
+                        const m = String(minutes).padStart(2, '0');
+                        const time = `${h}:${m}`;
+                    
+                        const option = document.createElement('option');
+                        option.value = time;
+                        option.textContent = time;
+                        select.appendChild(option);
+                      }
+                    }
+
+                    const now = new Date();
+                    let nextHour = now.getHours() + 1;
+
+                    // Clamp to endHour range
+                    if (nextHour < startHour) nextHour = startHour;
+                    if (nextHour > endHour) nextHour = endHour;
+
+                    const defaultTime = `${String(nextHour).padStart(2, '0')}:00`;
+
+                    // Try to set the default selection if it exists in dropdown
+                    if ([...select.options].some(opt => opt.value === defaultTime)) {
+                      select.value = defaultTime;
+                    }
+                </script>
+                
+                <br>
 
                 <label for="crediti"> Crediti: </label>
                 <input type="number" id="crediti" name="crediti" required>
                 <br>
 
-                <button type="submit" name="prenota"
-                    <?php echo empty($clienti) ? 'disabled' : ''; ?>
-                > Prenota
+                <button type="submit" name="prenota" <?php echo empty($clienti) ? 'disabled' : ''; ?>>
+                    Prenota
                 </button>
             </form>
             <br>

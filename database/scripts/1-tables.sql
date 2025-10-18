@@ -61,7 +61,7 @@ create table if not exists Prenotazioni (
 	, DataPrenotata date NOT NULL
 	, OrarioAccesso time NULL DEFAULT NULL
 	, Crediti tinyint unsigned NOT NULL
-	, Stato enum('PRENOTATA', 'COMPLETATA', 'ANNULLATA', 'INATTESA') NOT NULL DEFAULT 'PRENOTATA'
+	, Stato enum('PRENOTATA', 'COMPLETATA', 'ANNULLATA', 'SCADUTA') NOT NULL DEFAULT 'PRENOTATA'
 	, ID int unsigned NOT NULL AUTO_INCREMENT
 	, primary key (ID)
 	, foreign key (Cliente) references Clienti(ID) on DELETE set NULL

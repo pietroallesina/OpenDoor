@@ -132,7 +132,7 @@ create procedure procedura_restituisci_dati_cliente(in Cognome varchar(64), in N
 $$
 delimiter ;
 
--- Controllo disponibilità fascia oraria e crediti giornalieri
+-- Controllo disponibilità accessi, crediti, fascia oraria, accessi e crediti giornalieri
 drop procedure if exists procedura_inserimento_prenotazione;
 delimiter $$
 create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned, in Operatore smallint unsigned, in DataPrenotata date, in Crediti tinyint unsigned)
@@ -142,6 +142,17 @@ create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned
 
 		elseif (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < Crediti
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
+
+		elseif (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) = 'PRENOTATA'
+			then SIGNAL sqlstate '45000' SET message_text = 'Slot non disponibile';
+
+		-- somma accessi delle prenotazioni nel dato giorno
+		elseif (select COUNT(*) from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) >= limite_accessi()
+			then SIGNAL sqlstate '45000' SET message_text = 'Limite accessi giornaliero superato';
+
+		-- somma crediti delle prenotazioni nel dato giorno
+		elseif (select SUM(Prenotazioni.Crediti) from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) + Crediti > limite_crediti()
+			then SIGNAL sqlstate '45000' SET message_text = 'Limite crediti giornaliero superato';
 
 		end if;
 
@@ -166,7 +177,7 @@ create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotat
 	begin
 		declare Cliente smallint unsigned;
 		declare old_Crediti tinyint unsigned;
-        
+
 		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 		end if;
@@ -222,7 +233,21 @@ drop procedure if exists procedura_restituisci_eventi;
 delimiter $$
 create procedure procedura_restituisci_eventi(in DataInizio date, in DataFine date)
 	begin
-		select * from Prenotazioni where DataPrenotata between DataInizio and DataFine;
+		select Prenotazioni.ID as id, Prenotazioni.DataPrenotata as data, Clienti.Nome as nome, Clienti.Cognome as cognome
+		from Prenotazioni
+		join Clienti on Prenotazioni.Cliente = Clienti.ID
+		where Prenotazioni.DataPrenotata between DataInizio and DataFine;
+	end
+$$
+delimiter ;
+
+drop procedure if exists procedura_restituisci_dati_prenotazione;
+delimiter $$
+create procedure procedura_restituisci_dati_prenotazione(in ID int unsigned)
+	begin
+		select *
+		from Prenotazioni join Clienti on Prenotazioni.Cliente = Clienti.ID
+		where Prenotazioni.ID = ID;
 	end
 $$
 delimiter ;

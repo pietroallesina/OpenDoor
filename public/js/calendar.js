@@ -13,10 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
         events: '/api/calendar.php',
 
         eventClick: function(info) {
-            info.jsEvent.preventDefault(); // prevent default browser navigation
-            if (info.event.url) {
-                window.open(info.event.url, '_blank');
-            }
+            // Aggiungi informazioni sull'evento alla URL
+            const url = new URL('/datemenu', window.location.origin);
+            url.searchParams.append('id', info.event.extendedProps.id);
+            window.open(url.toString(), 'Nuova prenotazione', 'width=1000,height=500');
         },
     });
 
