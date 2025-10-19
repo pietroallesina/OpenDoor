@@ -9,7 +9,7 @@ create procedure procedura_aggiornamento_impostazioni(in parametro varchar(255),
 		update Impostazioni
 			set Parametri = json_replace(
 				Parametri,
-				concat('$.', parametro),
+				concat('$."', parametro, '"'), -- check string escaping
 				valore
 			)
 			where id = 1
@@ -91,8 +91,8 @@ delimiter $$
 create procedure procedura_inserimento_cliente(in Cognome varchar(64), in Nome varchar(64), in Regione enum('ITA', 'PAK', 'AN'), in NumeroFamigliari tinyint unsigned)
 	begin
 		insert into
-			Clienti(Cognome, Nome, Regione, NumeroFamigliari, AccessiDisponibili, CreditiDisponibili)
-			values(Cognome, Nome, Regione, NumeroFamigliari, calcola_accessi_disponibili(NumeroFamigliari), calcola_crediti_disponibili(NumeroFamigliari))
+			Clienti(Cognome, Nome, Regione, NumeroFamigliari)
+			values(Cognome, Nome, Regione, NumeroFamigliari)
 		;
 	end
 $$
@@ -104,10 +104,7 @@ create procedure procedura_aggiornamento_cliente(in ID smallint unsigned, in Cog
 	begin
 		update Clienti
 			set
-				Clienti.Cognome = Cognome, Clienti.Nome = Nome
-                , Clienti.Regione = Regione, Clienti.NumeroFamigliari = NumeroFamigliari
-                , Clienti.AccessiDisponibili = if(refill, calcola_accessi_disponibili(NumeroFamigliari), Clienti.AccessiDisponibili) -- condizionale
-                , Clienti.CreditiDisponibili = if(refill, calcola_crediti_disponibili(NumeroFamigliari), Clienti.CreditiDisponibili) -- condizionale
+				Clienti.Cognome = Cognome, Clienti.Nome = Nome, Clienti.Regione = Regione, Clienti.NumeroFamigliari = NumeroFamigliari
 			where Clienti.ID = ID
 		;
 	end
@@ -127,99 +124,79 @@ drop procedure if exists procedura_restituisci_dati_cliente;
 delimiter $$
 create procedure procedura_restituisci_dati_cliente(in Cognome varchar(64), in Nome varchar(64))
 	begin
-		select ID, Regione, NumeroFamigliari, AccessiDisponibili, CreditiDisponibili from Clienti where Clienti.Cognome = Cognome and Clienti.Nome = Nome;
+		select ID, Regione, NumeroFamigliari from Clienti where Clienti.Cognome = Cognome and Clienti.Nome = Nome;
 	end
 $$
 delimiter ;
 
--- Controllo disponibilità accessi, crediti, fascia oraria, accessi e crediti giornalieri
+-- aggiungi parametro opzionale ID per modifica (eliminazione e reinserimento)
 drop procedure if exists procedura_inserimento_prenotazione;
 delimiter $$
-create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned, in Operatore smallint unsigned, in DataPrenotata date, in Crediti tinyint unsigned)
-	begin
-		if (select Clienti.AccessiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) = 0
-			then SIGNAL sqlstate '45000' SET message_text = 'Il cliente ha esaurito gli accessi';
+create procedure procedura_inserimento_prenotazione(in Cliente smallint unsigned, in Operatore smallint unsigned, in Data date, in Orario time, in Crediti tinyint unsigned, in Descrizione varchar(255), in ID int unsigned)
+    begin
+        declare nf tinyint unsigned;
 
-		elseif (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID)) < Crediti
+        -- get cliente.NumeroFamigliari
+        select NumeroFamigliari into nf from Clienti where Clienti.ID = Cliente;
+
+        -- controllo se lo slot è disponibile
+        if exists(
+            select 1 from Prenotazioni
+            where Prenotazioni.Data = Data and Prenotazioni.Orario = Orario and Prenotazioni.Stato = 'PRENOTATA'
+        )
+            then SIGNAL sqlstate '45000' SET message_text = 'Slot non disponibile';
+
+        -- controllo disponibilità accessi (use date range for the month)
+        elseif (select COUNT(*) from Prenotazioni
+                where Prenotazioni.Cliente = Cliente
+                  and Prenotazioni.Data >= DATE_SUB(Data, INTERVAL DAY(Data)-1 DAY)
+                  and Prenotazioni.Data < DATE_ADD(DATE_SUB(Data, INTERVAL DAY(Data)-1 DAY), INTERVAL 1 MONTH)
+                  and Prenotazioni.Stato = 'PRENOTATA'
+            ) >= calcola_accessi_disponibili(nf)
+            then SIGNAL sqlstate '45000' SET message_text = 'Limite prenotazioni mensile superato';
+
+        -- controllo crediti disponibili
+        elseif Crediti > (select calcola_crediti_disponibili(nf))
 			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
 
-		elseif (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) = 'PRENOTATA'
-			then SIGNAL sqlstate '45000' SET message_text = 'Slot non disponibile';
-
 		-- somma accessi delle prenotazioni nel dato giorno
-		elseif (select COUNT(*) from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) >= limite_accessi()
+		elseif (select COUNT(*) from Prenotazioni where Prenotazioni.Data = Data) >= limite_accessi()
 			then SIGNAL sqlstate '45000' SET message_text = 'Limite accessi giornaliero superato';
 
 		-- somma crediti delle prenotazioni nel dato giorno
-		elseif (select SUM(Prenotazioni.Crediti) from Prenotazioni where Prenotazioni.DataPrenotata = DataPrenotata) + Crediti > limite_crediti()
+		elseif (select COALESCE(SUM(Prenotazioni.Crediti), 0) from Prenotazioni where Prenotazioni.Data = Data) + Crediti > limite_crediti()
 			then SIGNAL sqlstate '45000' SET message_text = 'Limite crediti giornaliero superato';
 
+		-- controllo se l'ID è fornito (modifica)
+		elseif ID is not NULL and not exists(select * from Prenotazioni where Prenotazioni.ID = ID)
+			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione da modificare non trovata';
+
+		elseif ID is not NULL
+			then
+				delete from Prenotazioni where Prenotazioni.ID = ID;
+
 		end if;
 
-		update Clienti
-			set
-				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili - 1
-				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili - Crediti
-			where Clienti.ID = Cliente
-		;
-
-		insert into
-			Prenotazioni(Cliente, Operatore, DataPrenotata, Crediti)
-            values(Cliente, Operatore, DataPrenotata, Crediti)
-		;
-    end
-$$
-delimiter ;
-
-drop procedure if exists procedura_aggiornamento_prenotazione;
-delimiter $$
-create procedure procedura_aggiornamento_prenotazione(in ID int, in DataPrenotata date, in Crediti tinyint unsigned)
-	begin
-		declare Cliente smallint unsigned;
-		declare old_Crediti tinyint unsigned;
-
-		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
-			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
-		end if;
-
-		set Cliente = (select Prenotazioni.Cliente from Prenotazioni where Prenotazioni.ID = ID);
-		if Cliente is NULL
-			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione non trovata';
-		end if;
-
-		set old_Crediti = (select Prenotazioni.Crediti from Prenotazioni where Prenotazioni.ID = ID);
-
-		if (select Clienti.CreditiDisponibili from Clienti where Clienti.ID = Cliente) + old_Crediti < Crediti
-			then SIGNAL sqlstate '45000' SET message_text = 'Crediti insufficienti per la prenotazione';
-		end if;
-
-		update Prenotazioni
-			set Prenotazioni.DataPrenotata = DataPrenotata, Prenotazioni.Crediti = Crediti
-			where Prenotazioni.ID = ID
-		;
-		update Clienti
-			set
-				Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + old_Crediti - Crediti
-			where Clienti.ID = Cliente
+		insert into Prenotazioni(Cliente, Operatore, Data, Orario, Crediti, Descrizione)
+			values(Cliente, Operatore, Data, Orario, Crediti, Descrizione)
 		;
     end
 $$
 delimiter ;
+
 
 drop procedure if exists procedura_annullamento_prenotazione;
 delimiter $$
 create procedure procedura_annullamento_prenotazione(in ID int unsigned)
 	begin
-		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
-			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
-		end if;
 
-		update Clienti
-			set
-				Clienti.AccessiDisponibili = Clienti.AccessiDisponibili + 1
-				, Clienti.CreditiDisponibili = Clienti.CreditiDisponibili + (select Prenotazioni.Crediti from Prenotazioni where Prenotazioni.ID = ID)
-			where Clienti.ID = (SELECT Cliente from Prenotazioni where Prenotazioni.ID = ID)
-		;
+		if not exists(select * from Prenotazioni where Prenotazioni.ID = ID)
+			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione da annullare non trovata';
+
+		elseif (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
+			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
+
+		end if;
 
 		update Prenotazioni
 			set Prenotazioni.Stato = 'ANNULLATA'
@@ -233,10 +210,10 @@ drop procedure if exists procedura_restituisci_eventi;
 delimiter $$
 create procedure procedura_restituisci_eventi(in DataInizio date, in DataFine date)
 	begin
-		select Prenotazioni.ID as id, Prenotazioni.DataPrenotata as data, Clienti.Nome as nome, Clienti.Cognome as cognome
+		select Prenotazioni.ID as id, Prenotazioni.Data as data, Prenotazioni.Orario as orario, Clienti.Nome as nome, Clienti.Cognome as cognome
 		from Prenotazioni
 		join Clienti on Prenotazioni.Cliente = Clienti.ID
-		where Prenotazioni.DataPrenotata between DataInizio and DataFine;
+		where Prenotazioni.Data between DataInizio and DataFine;
 	end
 $$
 delimiter ;
@@ -252,23 +229,25 @@ create procedure procedura_restituisci_dati_prenotazione(in ID int unsigned)
 $$
 delimiter ;
 
--- trasformo prenotazione in accesso -> aggiorno Cliente
 drop procedure if exists procedura_inserimento_accesso;
 delimiter $$
-create procedure procedura_inserimento_accesso(in ID int unsigned, in OrarioAccesso time)
+create procedure procedura_inserimento_accesso(in ID int unsigned, in OrarioAccesso time, in CreditiUtilizzati tinyint unsigned, in Note varchar(255))
 	begin
-		if (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
-			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
-        elseif OrarioAccesso is NULL
-			then SIGNAL sqlstate '45000' SET message_text = 'Il campo OrarioAccesso non può essere NULL';
+		if not exists(select * from Prenotazioni where Prenotazioni.ID = ID)
+			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione da completare non trovata';
+
+		elseif not exists(select * from Prenotazioni where Prenotazioni.ID = ID and Prenotazioni.Stato = 'PRENOTATA')
+			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
         end if;
 
 		update Prenotazioni -- Prenotazione diventa Accesso (a livello logico)
-			set Prenotazioni.OrarioAccesso = OrarioAccesso
-			, Prenotazioni.Stato = 'COMPLETATA'
-			where Prenotazioni.ID = ID
+			set Orario = if(OrarioAccesso is not null, OrarioAccesso, Orario)
+			, Crediti = if(CreditiUtilizzati is not null, CreditiUtilizzati, Crediti)
+			, Note = if(Note is not null, Note, '')
+			, Stato = 'COMPLETATA'
+			where ID = ID
 		;
     end
 $$

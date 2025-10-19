@@ -29,8 +29,9 @@ function fetchEventsByDate($start, $end)
 
         $events[] = [
             "title" => $row["nome"] . " " . $row["cognome"],
-            "allDay" => true,
-            "start" => $row["data"],
+            "start" => $row["data"] . (($row["orario"] != "" ) ? "T" . $row["orario"] : ""),
+            "end" => $row["data"] . (($row["orario"] != "" ) ? "T" . $row["orario"] : ""),
+            "allDay" => ($row["orario"] == "" ) ? true : false,
             "extendedProps" => [
                 "id" => $row["id"]
             ]

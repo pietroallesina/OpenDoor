@@ -3,34 +3,6 @@ SET GLOBAL event_scheduler = ON;
 
 -- SEZIONE TRIGGER --
 
-/*
-drop trigger if exists trigger_inserimento_cliente;
-delimiter $$
-create trigger trigger_inserimento_cliente BEFORE INSERT on Clienti
-	for each row
-	begin
-		set
-			new.AccessiDisponibili = calcola_accessi_disponibili (new.NumeroFamigliari)
-			, new.CreditiDisponibili = calcola_crediti_disponibili (new.NumeroFamigliari)
-		;
-	end
-$$
-delimiter ;
-
--- trigger inserimento prenotazione, IDcliente e IDoperatore non possono essere null
-drop trigger if exists trigger_inserimento_prenotazione;
-delimiter $$
-create trigger trigger_inserimento_prenotazione BEFORE INSERT on Prenotazioni
-	for each row
-    begin
-		if new.Cliente is NULL or new.Operatore is NULL
-		then SIGNAL sqlstate '45000' SET message_text = 'I campi Cliente e Operatore non possono essere inseriti come NULL';
-        end if;
-	end
-$$
-delimiter ;
-*/
-
 -- SEZIONE EVENTS --
 
 drop event if exists aggiornamento_mensile_risorse;

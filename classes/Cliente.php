@@ -7,18 +7,14 @@ class Cliente
     private string $nome;
     private string $regione;
     private int $numerofamigliari;
-    private int $accessidisponibili;
-    private int $creditidisponibili;
 
-    public function __construct(int $ID, string $cognome, string $nome, string $regione, int $numerofamigliari, int $accessidisponibili, int $creditidisponibili)
+    public function __construct(int $ID, string $cognome, string $nome, string $regione, int $numerofamigliari)
     {
         $this->ID = $ID;
         $this->cognome = $cognome;
         $this->nome = $nome;
         $this->regione = $regione;
         $this->numerofamigliari = $numerofamigliari;
-        $this->accessidisponibili = $accessidisponibili;
-        $this->creditidisponibili = $creditidisponibili;
     }
 
     public function ID(): string
