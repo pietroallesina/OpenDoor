@@ -210,7 +210,7 @@ drop procedure if exists procedura_restituisci_eventi;
 delimiter $$
 create procedure procedura_restituisci_eventi(in DataInizio date, in DataFine date)
 	begin
-		select Prenotazioni.ID as id, Prenotazioni.Data as data, Prenotazioni.Orario as orario, Clienti.Nome as nome, Clienti.Cognome as cognome
+		select Prenotazioni.ID as id, Prenotazioni.Stato as stato, Prenotazioni.Data as data, Prenotazioni.Orario as orario, Clienti.Nome as nome, Clienti.Cognome as cognome
 		from Prenotazioni
 		join Clienti on Prenotazioni.Cliente = Clienti.ID
 		where Prenotazioni.Data between DataInizio and DataFine;

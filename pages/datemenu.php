@@ -71,6 +71,27 @@ function modifica_prenotazione(int $IDprenotazione, string|null $data, string|nu
     return;
 }
 
+function cancella_prenotazione(int $IDprenotazione, string &$msg)
+{
+    global $db_user, $db_password;
+    try {
+        $mysqli = new mysqli("mysql", $db_user, $db_password, "OpenDoor");
+        $query = "CALL procedura_annullamento_prenotazione(?)";
+        $params = [$IDprenotazione];
+        $mysqli->execute_query($query, $params);
+    } catch (Exception $e) {
+        $msg = $e->getMessage();
+        if (isset($mysqli)) {
+            $mysqli->close();
+        }
+        return;
+    }
+
+    $mysqli->close();
+    $msg = "Prenotazione cancellata correttamente!";
+    return;
+}
+
 $reservationData = null;
 if (isset($_GET["id"])) {
     $reservationId = intval($_GET["id"]);
@@ -79,10 +100,14 @@ if (isset($_GET["id"])) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $msg = '';
-    $orario = $_POST['orario'] ?? null;
-    $crediti = ($_POST['crediti'] ?? null) !== null ? (int)$_POST['crediti'] : null;
-    $note = $_POST['note'] ?? null;
-    inserisci_accesso($reservationId, $orario, $crediti, $note, $msg);
+    if (isset($_POST['registra_accesso'])) {
+        $orario = $_POST['orario'] ?? null;
+        $crediti = ($_POST['crediti'] ?? null) !== null ? (int)$_POST['crediti'] : null;
+        $note = $_POST['note'] ?? null;
+        inserisci_accesso($reservationId, $orario, $crediti, $note, $msg);
+    } elseif (isset($_POST['cancella_prenotazione'])) {
+        cancella_prenotazione($reservationId, $msg);
+    }
 }
 
 ?>
@@ -106,12 +131,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <p><strong>Cliente:</strong> <?= htmlspecialchars($reservationData['Nome'] . ' ' . $reservationData['Cognome']) ?></p>
                 <p><strong>Operatore:</strong> <?= htmlspecialchars($reservationData['Operatore']) ?></p>
                 <p><strong>Descrizione:</strong> <?= htmlspecialchars($reservationData['Descrizione']) ?></p>
+                <p><strong>Crediti prenotati:</strong> <?= htmlspecialchars($reservationData['Crediti']) ?></p>
+                <p><strong>Stato:</strong> <?= htmlspecialchars($reservationData['Stato']) ?></p>
             </section>
 
         <?php else: ?>
             <p>Nessuna prenotazione trovata per l'ID specificato.</p>
         <?php endif; ?>
 
+        <?php if ($reservationData['Stato'] == 'PRENOTATA'): ?>
         <section>
             <h2>Azioni Prenotazione</h2>
             <form method="POST" action="">
@@ -163,11 +191,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea id="note" name="note" rows="4" cols="50"></textarea>
                 <br>
 
-                <button type="submit">Registra Accesso</button>
+                <button type="submit" name="registra_accesso">Registra Accesso</button>
+                <br>
+                <button type="submit" name="cancella_prenotazione">Cancella Prenotazione</button>
+                <br>
+
             </form>
-            <br>
+
 
         </section>
+        <?php endif; ?>
+
+        <br>
 
         <?php if (isset($msg) && $msg != ''): ?>
             <p> <?php echo $msg ?> </p>

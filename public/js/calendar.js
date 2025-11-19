@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Aggiungi informazioni sull'evento alla URL
             const url = new URL('/datemenu', window.location.origin);
             url.searchParams.append('id', info.event.extendedProps.id);
-            window.open(url.toString(), 'Nuova prenotazione', 'width=1000,height=500');
+            window.open(url.toString(), 'Nuova prenotazione', 'width=1000,height=800');
         },
     });
 

@@ -27,11 +27,19 @@ function fetchEventsByDate($start, $end)
     $events = [];
     while ($row = $result->fetch_assoc()) {
 
+        $bgcolor = match ($row["stato"]) {
+                'PRENOTATA' => '#007bff', // Blue
+                'COMPLETATA' => '#28a745',  // Green
+                'ANNULLATA' => '#dc3545', // Red
+                default => '#6c757d',     // Gray
+        };
+
         $events[] = [
             "title" => $row["nome"] . " " . $row["cognome"],
             "start" => $row["data"] . (($row["orario"] != "" ) ? "T" . $row["orario"] : ""),
             "end" => $row["data"] . (($row["orario"] != "" ) ? "T" . $row["orario"] : ""),
             "allDay" => ($row["orario"] == "" ) ? true : false,
+            "backgroundColor" => $bgcolor,
             "extendedProps" => [
                 "id" => $row["id"]
             ]
