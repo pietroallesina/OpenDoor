@@ -7,14 +7,16 @@ class Cliente
     private string $nome;
     private string $regione;
     private int $numerofamigliari;
+    private int $creditiDisponibili;
 
-    public function __construct(int $ID, string $cognome, string $nome, string $regione, int $numerofamigliari)
+    public function __construct(int $ID, string $cognome, string $nome, string $regione, int $numerofamigliari, int $creditiDisponibili)
     {
         $this->ID = $ID;
         $this->cognome = $cognome;
         $this->nome = $nome;
         $this->regione = $regione;
         $this->numerofamigliari = $numerofamigliari;
+        $this->creditiDisponibili = $creditiDisponibili;
     }
 
     public function ID(): string
@@ -28,5 +30,13 @@ class Cliente
     public function regione(): string
     {
         return $this->regione;
+    }
+    public function numerofamigliari(): int
+    {
+        return $this->numerofamigliari;
+    }
+    public function creditiDisponibili(): int
+    {
+        return $this->creditiDisponibili;
     }
 }

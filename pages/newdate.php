@@ -16,7 +16,7 @@ function trova_clienti(string $cognome, string $nome, string &$msg): array // re
 
         for ($i = 0; $i < $result->num_rows; $i++) {
             $row = $result->fetch_assoc();
-            $clienti[$i] = new Cliente($row['ID'], $cognome, $nome, $row['Regione'], $row['NumeroFamigliari']);
+            $clienti[$i] = new Cliente($row['ID'], $cognome, $nome, $row['Regione'], $row['NumeroFamigliari'], $row['CreditiDisponibili']);
         }
 
     } catch (Exception $e) {
@@ -177,9 +177,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </script>
 
                 <br>
-
-                <label for="crediti"> Crediti: </label>
+                
+                <label for="crediti"> Crediti </label>
                 <input type="number" id="crediti" name="crediti" required>
+                <script>
+                    // Fetch crediti disponibili for selected client
+                    const clienti = <?php
+                                    $clientiArray = [];
+                                    foreach ($clienti as $cliente) {
+                                        $clientiArray[$cliente->ID()] = $cliente->creditiDisponibili();
+                                    }
+                                    echo json_encode($clientiArray);
+                                    ?>;
+
+                    const clienteSelect = document.getElementById('cliente');
+                    const creditiInput = document.getElementById('crediti');
+
+                    function updateCreditiDisponibili() {
+                        const selectedID = clienteSelect.value;
+                        const creditiDisponibili = clienti[selectedID] || 0;
+                        creditiInput.setAttribute('max', creditiDisponibili);
+                        creditiInput.setAttribute('placeholder', `Max: ${creditiDisponibili}`);
+                    }
+
+                    // Update on page load and when selection changes
+                    updateCreditiDisponibili();
+                    clienteSelect.addEventListener('change', updateCreditiDisponibili);
+                </script>
+
                 <br>
 
                 <label for="descrizione"> Descrizione: </label>

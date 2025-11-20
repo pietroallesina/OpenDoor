@@ -124,7 +124,7 @@ drop procedure if exists procedura_restituisci_dati_cliente;
 delimiter $$
 create procedure procedura_restituisci_dati_cliente(in Cognome varchar(64), in Nome varchar(64))
 	begin
-		select ID, Regione, NumeroFamigliari from Clienti where Clienti.Cognome = Cognome and Clienti.Nome = Nome;
+		select ID, Regione, NumeroFamigliari, calcola_crediti_disponibili(Clienti.NumeroFamigliari) as CreditiDisponibili from Clienti where Clienti.Cognome = Cognome and Clienti.Nome = Nome;
 	end
 $$
 delimiter ;
@@ -187,20 +187,20 @@ delimiter ;
 
 drop procedure if exists procedura_annullamento_prenotazione;
 delimiter $$
-create procedure procedura_annullamento_prenotazione(in ID int unsigned)
+create procedure procedura_annullamento_prenotazione(in targetID int unsigned)
 	begin
 
-		if not exists(select * from Prenotazioni where Prenotazioni.ID = ID)
+		if not exists(select * from Prenotazioni where Prenotazioni.ID = targetID)
 			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione da annullare non trovata';
 
-		elseif (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = ID) != 'PRENOTATA'
+		elseif (select Prenotazioni.Stato from Prenotazioni where Prenotazioni.ID = targetID) != 'PRENOTATA'
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
 		end if;
 
 		update Prenotazioni
 			set Prenotazioni.Stato = 'ANNULLATA'
-			where Prenotazioni.ID = ID
+			where Prenotazioni.ID = targetID
 		;
     end
 $$
@@ -220,24 +220,24 @@ delimiter ;
 
 drop procedure if exists procedura_restituisci_dati_prenotazione;
 delimiter $$
-create procedure procedura_restituisci_dati_prenotazione(in ID int unsigned)
+create procedure procedura_restituisci_dati_prenotazione(in targetID int unsigned)
 	begin
 		select *
 		from Prenotazioni join Clienti on Prenotazioni.Cliente = Clienti.ID
-		where Prenotazioni.ID = ID;
+		where Prenotazioni.ID = targetID;
 	end
 $$
 delimiter ;
 
 drop procedure if exists procedura_inserimento_accesso;
 delimiter $$
-create procedure procedura_inserimento_accesso(in ID int unsigned, in OrarioAccesso time, in CreditiUtilizzati tinyint unsigned, in Note varchar(255))
+create procedure procedura_inserimento_accesso(in targetID int unsigned, in OrarioAccesso time, in CreditiUtilizzati tinyint unsigned, in Note varchar(255))
 	begin
 
-		if not exists(select * from Prenotazioni where Prenotazioni.ID = ID)
+		if not exists(select * from Prenotazioni where Prenotazioni.ID = targetID)
 			then SIGNAL sqlstate '45000' SET message_text = 'Prenotazione da completare non trovata';
 
-		elseif not exists(select * from Prenotazioni where Prenotazioni.ID = ID and Prenotazioni.Stato = 'PRENOTATA')
+		elseif not exists(select * from Prenotazioni where Prenotazioni.ID = targetID and Prenotazioni.Stato = 'PRENOTATA')
 			then SIGNAL sqlstate '45000' SET message_text = 'La prenotazione non è in stato PRENOTATA';
 
         end if;
@@ -247,7 +247,7 @@ create procedure procedura_inserimento_accesso(in ID int unsigned, in OrarioAcce
 			, Crediti = if(CreditiUtilizzati is not null, CreditiUtilizzati, Crediti)
 			, Note = if(Note is not null, Note, '')
 			, Stato = 'COMPLETATA'
-			where ID = ID
+			where ID = targetID
 		;
     end
 $$
