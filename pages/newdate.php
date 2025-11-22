@@ -28,7 +28,9 @@ function trova_clienti(string $cognome, string $nome, string &$msg): array // re
     }
 
     $mysqli->close();
-    $msg = 'Utenti trovati';
+    if (empty($clienti))
+        $msg = 'Nessun utente trovato';
+    else $msg = 'Utenti trovati';
     return $clienti;
 }
 
@@ -76,7 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $orario = (isset($_POST["tutto-il-giorno"])) ? null : $_POST["orario"] . ":00"; // aggiungo i secondi per formato hh:mm:ss
         inserisci_prenotazione($_POST["IDcliente"], $_SESSION['operatore']->ID(), $_POST["giorno"], $orario, $_POST["crediti"], $_POST["descrizione"], $msg);
     }
-    // aggiungi opzione di modifica prenotazione in futuro
 }
 ?>
 

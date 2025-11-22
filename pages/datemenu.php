@@ -92,6 +92,7 @@ function cancella_prenotazione(int $IDprenotazione, string &$msg)
     return;
 }
 
+$reservationId = null;
 $reservationData = null;
 if (isset($_GET["id"])) {
     $reservationId = intval($_GET["id"]);
@@ -126,9 +127,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($reservationData): ?>
             <section>
                 <h2>Dettagli Prenotazione</h2>
-                <p><strong>ID Prenotazione:</strong> <?= htmlspecialchars($reservationData['ID']) ?></p>
+                <p><strong>ID Prenotazione:</strong> <?= htmlspecialchars($reservationId) ?></p>
                 <p><strong>Data e ora:</strong> <?= htmlspecialchars($reservationData['Data'] . ' ' . $reservationData['Orario']) ?></p>
-                <p><strong>Cliente:</strong> <?= htmlspecialchars($reservationData['Nome'] . ' ' . $reservationData['Cognome']) ?></p>
+                <p><strong>Cliente:</strong> <?= htmlspecialchars($reservationData['Nome'] . ' ' . $reservationData['Cognome'] . ' [' . $reservationData['Regione'] . ' - ' . $reservationData['Cliente'] . ']') ?></p>
                 <p><strong>Operatore:</strong> <?= htmlspecialchars($reservationData['Operatore']) ?></p>
                 <p><strong>Descrizione:</strong> <?= htmlspecialchars($reservationData['Descrizione']) ?></p>
                 <p><strong>Crediti prenotati:</strong> <?= htmlspecialchars($reservationData['Crediti']) ?></p>
@@ -188,6 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <br>
 
                 <label for="note"> Note: </label>
+                <br>
                 <textarea id="note" name="note" rows="4" cols="50"></textarea>
                 <br>
 

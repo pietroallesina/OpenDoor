@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', function() {
         headerToolbar: { left:'prev,next today', center:'title', right:'timeGridWeek,dayGridMonth'},
         buttonText: { today:'oggi', month:'mese', week:'settimana'},
 
+        // get settings from server
         slotMinTime: "07:00:00", // starting time
+        slotMaxTime: "20:00:00", // ending time
+        // slotDuration: "00:15:00", // time slot duration
         nowIndicator: true,
 
         events: '/api/calendar.php',

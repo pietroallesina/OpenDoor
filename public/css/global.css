@@ -3,9 +3,9 @@
 /***********/
 
 :root {
-    --background-color: lightyellow;
-    --header-color: khaki;
-    --text-color: black;
+    --background-color: #242323;
+    --header-color: #161616;
+    --text-color: #00771e;
     --link-color: brown;
     --error-color: red;
 }
@@ -36,5 +36,11 @@ main h1 {
 }
 
 a {
-        color: var(--link-color);
+    color: var(--link-color);
+}
+
+input , select, textarea, button {
+    font-family: Arial, sans-serif;
+    color: var(--text-color);
+    background-color: var(--header-color);
 }

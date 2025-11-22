@@ -58,7 +58,7 @@ delimiter ;
 
 drop function if exists limite_accessi;
 delimiter $$
-create function limite_accessi () returns tinyint unsigned deterministic
+create function limite_accessi() returns tinyint unsigned deterministic
 	begin
 		declare limite tinyint unsigned;
 
@@ -78,7 +78,7 @@ delimiter ;
 
 drop function if exists limite_crediti;
 delimiter $$
-create function limite_crediti () returns smallint unsigned deterministic
+create function limite_crediti() returns smallint unsigned deterministic
 	begin
 		declare limite smallint unsigned;
 
@@ -92,6 +92,66 @@ create function limite_crediti () returns smallint unsigned deterministic
 	    where id = 1;
 
 	    return limite;
+	end
+$$
+delimiter ;
+
+drop function if exists ampiezza_fascia_oraria;
+delimiter $$
+create function ampiezza_fascia_oraria() returns tinyint unsigned deterministic
+	begin
+		declare amp tinyint unsigned;
+
+		select CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, '$.ampiezza_fascia_oraria')
+	        ) AS UNSIGNED
+	    )
+	    into amp
+		from Impostazioni
+	    where id = 1;
+
+	    return amp;
+	end
+$$
+delimiter ;
+
+drop function if exists orario_inizio;
+delimiter $$
+create function orario_inizio() returns time deterministic
+	begin
+		declare orario time;
+
+		select CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, '$.orario_inizio')
+	        ) AS UNSIGNED
+	    )
+	    into orario
+		from Impostazioni
+	    where id = 1;
+
+	    return orario;
+	end
+$$
+delimiter ;
+
+drop function if exists orario_fine;
+delimiter $$
+create function orario_fine() returns time deterministic
+	begin
+		declare orario time;
+
+		select CAST(
+	        JSON_UNQUOTE(
+	            JSON_EXTRACT(Parametri, '$.orario_fine')
+	        ) AS UNSIGNED
+	    )
+	    into orario
+		from Impostazioni
+	    where id = 1;
+
+	    return orario;
 	end
 $$
 delimiter ;
